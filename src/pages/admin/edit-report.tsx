@@ -10,8 +10,29 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { DatePicker } from "@/components/ui/date-picker"
 
+// Define report type
+interface Report {
+  id: string;
+  student_name: string;
+  student_class: string;
+  student_level: string;
+  halaqoh_name: string;
+  teacher_name: string;
+  juz: string;
+  surah: string;
+  verses: string;
+  amount_memorized: string;
+  module: string;
+  chapter: string;
+  pages: string;
+  lines: string;
+  teacher_notes: string;
+  created_at: string;
+  user_email: string;
+}
+
 export default function EditReportPage() {
-  const [report, setReport] = useState<any>(null)
+  const [report, setReport] = useState<Report | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   

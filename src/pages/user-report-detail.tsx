@@ -12,13 +12,32 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
+// Define report type
+interface Report {
+  id: string;
+  student_name: string;
+  student_class: string;
+  created_at: string;
+  student_level: string;
+  halaqoh_name: string;
+  teacher_name: string;
+  juz: string;
+  surah: string;
+  verses: string;
+  amount_memorized: string;
+  module: string;
+  chapter: string;
+  pages: string;
+  lines: string;
+  teacher_notes: string;
+}
+
 export default function UserReportDetail() {
-  const [report, setReport] = useState<any>(null)
+  const [report, setReport] = useState<Report | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const reportId = searchParams?.get('id') || null
 
   useEffect(() => {
     const fetchReport = async () => {

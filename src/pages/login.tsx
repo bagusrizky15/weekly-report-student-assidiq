@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { supabaseClient } from "@/lib/supabaseClient"
 import {
   Card,
@@ -63,10 +64,11 @@ export default function LoginPage() {
       <Card className="w-[350px]">
         {/* Logo */}
         <div className="flex flex-col items-center mt-4">
-          <img
+          <Image
             src="https://iili.io/KHrWAOB.png"
             alt="Logo"
             width={100}
+            height={100}
             className="mb-2"
           />
         </div>

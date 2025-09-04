@@ -52,8 +52,8 @@ export default async function handler(
     }
 
     res.status(200).json({ message: "User updated successfully", data })
-  } catch (err: any) {
+  } catch (err) {
     console.error("Unexpected error:", err)
-    res.status(500).json({ error: err.message || "Unexpected error occurred" })
+    res.status(500).json({ error: (err as Error).message || "Unexpected error occurred" })
   }
 }

@@ -4,8 +4,14 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabaseClient } from "@/lib/supabaseClient"
 
+// Define user type
+interface AppUser {
+  id: string;
+  email: string;
+}
+
 export default function Home() {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<AppUser | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
@@ -14,7 +20,10 @@ export default function Home() {
       try {
         const { data } = await supabaseClient.auth.getUser()
         if (data.user) {
-          setUser(data.user)
+          setUser({
+            id: data.user.id,
+            email: data.user.email || ''
+          })
           
           // Check user role
           const { data: profileData, error } = await supabaseClient
@@ -42,7 +51,7 @@ export default function Home() {
         console.error("Error checking user:", err)
         router.replace("/login")
       } finally {
-        setLoading(false)
+        // setLoading is removed since it's not used
       }
     }
     

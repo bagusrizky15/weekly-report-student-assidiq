@@ -38,7 +38,7 @@ export default async function handler( req: NextApiRequest, res: NextApiResponse
     if (profileError) return res.status(500).json({ error: profileError.message })
 
     res.status(200).json({ message: "User deleted successfully" })
-  } catch (err: any) {
-    res.status(500).json({ error: err.message })
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message })
   }
 }

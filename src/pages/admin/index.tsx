@@ -18,7 +18,6 @@ export default function AdminDashboard() {
     const [selectedUser, setSelectedUser] = useState<User | null>(null)
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-    const [dropdownOpenIndex, setDropdownOpenIndex] = useState<number | null>(null)
 
     // Cek session
     useEffect(() => {

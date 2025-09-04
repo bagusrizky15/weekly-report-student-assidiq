@@ -20,9 +20,23 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+// Define user and report types
+interface User {
+  id: string;
+  full_name: string;
+  user_class: string;
+  user_email: string;
+}
+
+interface Report {
+  id: string;
+  created_at: string;
+  teacher_name: string;
+}
+
 export default function UserDetailPage() {
-  const [user, setUser] = useState<any>(null)
-  const [reports, setReports] = useState<any[]>([])
+  const [user, setUser] = useState<User | null>(null)
+  const [reports, setReports] = useState<Report[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()

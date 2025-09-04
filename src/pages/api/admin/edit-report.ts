@@ -48,12 +48,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         juz: juz || "",
         surah: surah || "",
         verses: verses || "",
-        amount_memorized: amountMemorized || "",
+        amount_memorized: amount_memorized || "",
         module: module || "",
         chapter: chapter || "",
         pages: pages || "",
         lines: lines || "",
-        teacher_notes: teacherNotes || "",
+        teacher_notes: teacher_notes || "",
         created_at: created_at || new Date().toISOString(),
         updated_at: new Date().toISOString()
       })

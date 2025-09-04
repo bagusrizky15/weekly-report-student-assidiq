@@ -51,7 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         juz: juz || "",
         surah: surah || "",
         verses: verses || "",
-        amount_memorized: amountMemorized || "",
+        amount_memorized: amount_memorized || "",
         module: module || "",
         chapter: chapter || "",
         pages: pages || "",
