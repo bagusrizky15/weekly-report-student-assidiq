@@ -65,7 +65,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="flex flex-col items-center mt-4">
           <Image
-            src="https://iili.io/KHrWAOB.png"
+            src="/logo.jpeg"
             alt="Logo"
             width={100}
             height={100}
