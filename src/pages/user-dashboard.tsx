@@ -49,7 +49,7 @@ export default function UserDashboard() {
         const { data: authData, error: authError } = await supabaseClient.auth.getUser()
         
         if (authError) {
-          setError("Gagal mengambil data pengguna: " + authError.message)
+          setError("Failed to fetch user data: " + authError.message)
           setLoading(false)
           return
         }
@@ -67,7 +67,7 @@ export default function UserDashboard() {
           .single()
           
         if (userError) {
-          setError("Gagal mengambil data profil: " + userError.message)
+          setError("Failed to fetch profile data: " + userError.message)
           setLoading(false)
           return
         }
@@ -94,7 +94,7 @@ export default function UserDashboard() {
         
         setLoading(false)
       } catch (err) {
-        setError("Terjadi kesalahan tidak terduga")
+        setError("An unexpected error occurred")
         console.error(err)
         setLoading(false)
       }
@@ -141,7 +141,7 @@ export default function UserDashboard() {
   return (
     <div className="p-6 relative min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Dashboard Saya</h1>
+        <h1 className="text-2xl font-bold">My Dashboard</h1>
         <Button
           onClick={handleLogout}
           className="bg-gray-600 text-white hover:bg-gray-800"
@@ -153,13 +153,13 @@ export default function UserDashboard() {
       {/* Student Information Section */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Informasi Saya</CardTitle>
-          <CardDescription>Detail informasi akun saya</CardDescription>
+          <CardTitle>My Information</CardTitle>
+          <CardDescription>Details of my account information</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Nama</label>
+              <label className="block text-sm font-medium text-gray-700">Name</label>
               <p className="mt-1 p-2 bg-gray-50 rounded">{user?.full_name || "-"}</p>
             </div>
             <div>
@@ -167,7 +167,7 @@ export default function UserDashboard() {
               <p className="mt-1 p-2 bg-gray-50 rounded">{user?.user_email || "-"}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Kelas</label>
+              <label className="block text-sm font-medium text-gray-700">Class</label>
               <p className="mt-1 p-2 bg-gray-50 rounded">{user?.user_class || "-"}</p>
             </div>
           </div>
@@ -179,38 +179,38 @@ export default function UserDashboard() {
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle>Daftar Laporan</CardTitle>
-              <CardDescription>Histori laporan perkembangan saya</CardDescription>
+              <CardTitle>Report List</CardTitle>
+              <CardDescription>History of my progress reports</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           {reports.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-500">Belum ada laporan untuk Anda</p>
+              <p className="text-gray-500">No reports available for you yet</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>No</TableHead>
-                  <TableHead>Tanggal</TableHead>
-                  <TableHead>Guru</TableHead>
-                  <TableHead>Detail</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Teacher</TableHead>
+                  <TableHead>Details</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {reports.map((report, index) => (
                   <TableRow key={report.id}>
                     <TableCell>{index + 1}</TableCell>
-                    <TableCell>{new Date(report.created_at).toLocaleDateString('id-ID')}</TableCell>
+                    <TableCell>{new Date(report.created_at).toLocaleDateString('en-US')}</TableCell>
                     <TableCell>{report.teacher_name || ""}</TableCell>
                     <TableCell>
                       <Button 
                         size="sm" 
                         onClick={() => router.push(`/user-report-detail?id=${report.id}`)}
                       >
-                        Lihat Detail
+                        View Details
                       </Button>
                     </TableCell>
                   </TableRow>

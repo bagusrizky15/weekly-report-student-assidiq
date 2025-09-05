@@ -42,7 +42,7 @@ export default function AdminLoginPage() {
 
         console.log("Attempting login with email:", email);
         
-        // 1. Login pakai email & password
+        // 1. Login with email & password
         const { data, error } = await supabaseClient.auth.signInWithPassword({
             email,
             password,
@@ -50,28 +50,28 @@ export default function AdminLoginPage() {
 
         setLoading(false);
 
-        // 2. Cek login error
+        // 2. Check login error
         if (error) {
             console.error("Login error:", error);
-            setError("❌ Email atau password salah!");
+            setError("❌ Email or password is incorrect!");
             return;
         }
 
-        // 3. Ambil user dari response
+        // 3. Get user from response
         const user = data?.user;
         if (!user) {
             console.error("No user in response data:", data);
-            setError("❌ Terjadi kesalahan, user tidak ditemukan.");
+            setError("❌ An error occurred, user not found.");
             return;
         }
         
         console.log("User logged in:", user);
 
-        // 4. Ambil role dari user_metadata atau tabel profiles
-        //    Supabase Auth menyimpan user_metadata di JWT
+        // 4. Get role from user_metadata or profiles table
+        //    Supabase Auth stores user_metadata in JWT
         let role = user.user_metadata?.role || null;
 
-        // Kalau role tidak ada di user_metadata, ambil dari tabel profiles
+        // If role is not in user_metadata, get it from profiles table
         if (!role) {
             try {
                 // Call API route to check role using admin client on server
@@ -87,33 +87,33 @@ export default function AdminLoginPage() {
 
                 if (!response.ok) {
                     console.error("Role check error:", result.error);
-                    setError("❌ Gagal mengambil data role: " + result.error);
+                    setError("❌ Failed to fetch role data: " + result.error);
                     return;
                 }
 
                 role = result.role || "user";
             } catch (err) {
                 console.error("Unexpected error when fetching profile:", err);
-                setError("❌ Terjadi kesalahan tidak terduga saat mengambil data role.");
+                setError("❌ An unexpected error occurred while fetching role data.");
                 return;
             }
         }
 
-        // 5. Cek role, hanya admin yang bisa masuk
+        // 5. Check role, only admin can log in
         if (role !== "admin") {
-            setError(`❌ Akses ditolak! Role Anda: ${role}. Hanya admin yang boleh login.`);
-            // Logout supaya tidak menyimpan session user biasa
+            setError(`❌ Access denied! Your role: ${role}. Only admins can log in.`);
+            // Logout to avoid storing regular user session
             await supabaseClient.auth.signOut();
             return;
         }
 
-        // 6. Sukses → redirect ke dashboard admin
+        // 6. Success → redirect to admin dashboard
         console.log("Redirecting to admin dashboard");
         try {
             router.push("/admin");
         } catch (err) {
             console.error("Router error:", err);
-            setError("❌ Gagal mengarahkan ke dashboard admin.");
+            setError("❌ Failed to redirect to admin dashboard.");
         }
     }
 
@@ -124,7 +124,7 @@ export default function AdminLoginPage() {
                 <CardHeader>
                     <CardTitle className="text-center">Admin Login</CardTitle>
                     <CardDescription className="text-center">
-                        Masuk dengan akun admin
+                        Sign in with admin account
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -164,7 +164,7 @@ export default function AdminLoginPage() {
                 </CardContent>
                 <CardFooter>
                     <p className="text-xs text-gray-500 text-center w-full">
-                        Hanya untuk akun admin.
+                        For admin accounts only.
                     </p>
                 </CardFooter>
             </Card>
@@ -173,7 +173,7 @@ export default function AdminLoginPage() {
                 <div className="absolute top-4 right-4 w-[300px]">
                     <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Login Gagal</AlertTitle>
+                        <AlertTitle>Login Failed</AlertTitle>
                         <AlertDescription>{error}</AlertDescription>
                     </Alert>
                 </div>

@@ -48,7 +48,7 @@ export default function UserReportDetail() {
         const reportId = searchParams?.get('id')
         
         if (!reportId) {
-          setError("ID laporan tidak ditemukan")
+          setError("Report ID not found")
           setLoading(false)
           return
         }
@@ -57,7 +57,7 @@ export default function UserReportDetail() {
         const { data: authData, error: authError } = await supabaseClient.auth.getUser()
         
         if (authError) {
-          setError("Gagal mengambil data pengguna: " + authError.message)
+          setError("Failed to fetch user data: " + authError.message)
           setLoading(false)
           return
         }
@@ -76,13 +76,13 @@ export default function UserReportDetail() {
           .single()
           
         if (reportError) {
-          setError("Gagal mengambil data laporan: " + reportError.message)
+          setError("Failed to fetch report data: " + reportError.message)
           setLoading(false)
           return
         }
         
         if (!reportData) {
-          setError("Laporan tidak ditemukan")
+          setError("Report not found")
           setLoading(false)
           return
         }
@@ -90,7 +90,7 @@ export default function UserReportDetail() {
         setReport(reportData)
         setLoading(false)
       } catch (err) {
-        setError("Terjadi kesalahan tidak terduga")
+        setError("An unexpected error occurred")
         console.error(err)
         setLoading(false)
       }
@@ -140,34 +140,34 @@ export default function UserReportDetail() {
   return (
     <div className="p-6 relative min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Detail Laporan</h1>
+        <h1 className="text-2xl font-bold">Report Details</h1>
         <Button
           onClick={() => router.push('/user-dashboard')}
           className="bg-gray-600 text-white hover:bg-gray-800"
         >
-          Kembali
+          Back
         </Button>
       </div>
 
       {/* Student Information */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Informasi Siswa</CardTitle>
-          <CardDescription>Detail informasi siswa</CardDescription>
+          <CardTitle>Student Information</CardTitle>
+          <CardDescription>Student information details</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Nama Siswa</label>
+            <label className="block text-sm font-medium text-gray-700">Student Name</label>
             <p className="mt-1 p-2 bg-gray-50 rounded">{report?.student_name || "-"}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Kelas</label>
+            <label className="block text-sm font-medium text-gray-700">Class</label>
             <p className="mt-1 p-2 bg-gray-50 rounded">{report?.student_class || "-"}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Tanggal</label>
+            <label className="block text-sm font-medium text-gray-700">Date</label>
             <p className="mt-1 p-2 bg-gray-50 rounded">
-              {report?.created_at ? new Date(report.created_at).toLocaleDateString('id-ID') : "-"}
+              {report?.created_at ? new Date(report.created_at).toLocaleDateString('en-US') : "-"}
             </p>
           </div>
           <div>
@@ -175,11 +175,11 @@ export default function UserReportDetail() {
             <p className="mt-1 p-2 bg-gray-50 rounded">{report?.student_level || "-"}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Nama Halaqoh</label>
+            <label className="block text-sm font-medium text-gray-700">Halaqoh Name</label>
             <p className="mt-1 p-2 bg-gray-50 rounded">{report?.halaqoh_name || "-"}</p>
           </div>
           <div className="md:col-span-3">
-            <label className="block text-sm font-medium text-gray-700">Nama Guru</label>
+            <label className="block text-sm font-medium text-gray-700">Teacher Name</label>
             <p className="mt-1 p-2 bg-gray-50 rounded">{report?.teacher_name || "-"}</p>
           </div>
         </CardContent>
@@ -188,8 +188,8 @@ export default function UserReportDetail() {
       {/* Tabrizh (Memorization) */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Tabrizh (Hafalan)</CardTitle>
-          <CardDescription>Informasi hafalan</CardDescription>
+          <CardTitle>Tahfizh (Memorization)</CardTitle>
+          <CardDescription>Memorization information</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -201,11 +201,11 @@ export default function UserReportDetail() {
             <p className="mt-1 p-2 bg-gray-50 rounded">{report?.surah || "-"}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Ayat</label>
+            <label className="block text-sm font-medium text-gray-700">Verses</label>
             <p className="mt-1 p-2 bg-gray-50 rounded">{report?.verses || "-"}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Jumlah Hafalan</label>
+            <label className="block text-sm font-medium text-gray-700">Amount Memorized</label>
             <p className="mt-1 p-2 bg-gray-50 rounded">{report?.amount_memorized || "-"}</p>
           </div>
         </CardContent>
@@ -214,24 +214,24 @@ export default function UserReportDetail() {
       {/* Tahsin (Reading Improvement) */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Tahsin (Peningkatan Membaca)</CardTitle>
-          <CardDescription>Data pembelajaran</CardDescription>
+          <CardTitle>Tahsin (Reading Improvement)</CardTitle>
+          <CardDescription>Learning data</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Modul</label>
+            <label className="block text-sm font-medium text-gray-700">Module</label>
             <p className="mt-1 p-2 bg-gray-50 rounded">{report?.module || "-"}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Bab</label>
+            <label className="block text-sm font-medium text-gray-700">Chapter</label>
             <p className="mt-1 p-2 bg-gray-50 rounded">{report?.chapter || "-"}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Halaman</label>
+            <label className="block text-sm font-medium text-gray-700">Pages</label>
             <p className="mt-1 p-2 bg-gray-50 rounded">{report?.pages || "-"}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Baris</label>
+            <label className="block text-sm font-medium text-gray-700">Lines</label>
             <p className="mt-1 p-2 bg-gray-50 rounded">{report?.lines || "-"}</p>
           </div>
         </CardContent>
@@ -240,12 +240,12 @@ export default function UserReportDetail() {
       {/* Teacher's Notes */}
       <Card>
         <CardHeader>
-          <CardTitle>Catatan Guru</CardTitle>
-          <CardDescription>Catatan mengenai perkembangan siswa</CardDescription>
+          <CardTitle>Teacher's Notes</CardTitle>
+          <CardDescription>Notes on student progress</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="p-4 bg-gray-50 rounded min-h-[100px]">
-            {report?.teacher_notes || "Tidak ada catatan dari guru"}
+            {report?.teacher_notes || "No notes from teacher"}
           </div>
         </CardContent>
       </Card>

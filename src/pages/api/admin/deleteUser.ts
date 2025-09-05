@@ -18,18 +18,18 @@ export default async function handler( req: NextApiRequest, res: NextApiResponse
   }
 
   try {
-    // Cari user ID berdasarkan email
+    // Find user ID based on email
     const { data: userData, error: userError } = await supabaseAdmin.auth.admin.listUsers()
     if (userError) return res.status(500).json({ error: userError.message })
 
     const user = userData.users.find(u => u.email === email)
     if (!user) return res.status(404).json({ error: "User not found" })
 
-    // Delete user dari Auth
+    // Delete user from Auth
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id)
     if (deleteError) return res.status(500).json({ error: deleteError.message })
 
-    // Delete profile dari table
+    // Delete profile from table
     const { error: profileError } = await supabaseAdmin
       .from("profiles")
       .delete()

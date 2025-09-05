@@ -45,7 +45,7 @@ export default function UserDetailPage() {
 
   useEffect(() => {
     if (!userEmail) {
-      setError("Email pengguna tidak ditemukan")
+      setError("User email not found")
       setLoading(false)
       return
     }
@@ -58,7 +58,7 @@ export default function UserDetailPage() {
         const userData = await userRes.json()
 
         if (!userRes.ok) {
-          setError("Gagal mengambil data pengguna: " + userData.error)
+          setError("Failed to fetch user data: " + userData.error)
           setLoading(false)
           return
         }
@@ -85,7 +85,7 @@ export default function UserDetailPage() {
 
         setLoading(false)
       } catch (err) {
-        setError("Terjadi kesalahan tidak terduga")
+        setError("An unexpected error occurred")
         console.error(err)
         setLoading(false)
       }
@@ -103,7 +103,7 @@ export default function UserDetailPage() {
   }
 
   const handleDeleteReport = async (reportId: string) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus laporan ini?")) {
+    if (window.confirm("Are you sure you want to delete this report?")) {
       try {
         // Use API route to delete report with admin privileges
         const res = await fetch("/api/admin/delete-report", {
@@ -117,15 +117,15 @@ export default function UserDetailPage() {
         const result = await res.json();
 
         if (!res.ok) {
-          alert("Gagal menghapus laporan: " + result.error);
+          alert("Failed to delete report: " + result.error);
         } else {
           // Refresh reports
           setReports(reports.filter(report => report.id !== reportId));
-          alert("Laporan berhasil dihapus!");
+          alert("Report deleted successfully!");
         }
       } catch (err) {
         console.error("Error deleting report:", err);
-        alert("Terjadi kesalahan saat menghapus laporan");
+        alert("An error occurred while deleting the report");
       }
     }
   }
@@ -148,7 +148,7 @@ export default function UserDetailPage() {
             onClick={() => router.push('/admin')} 
             className="mt-2 bg-red-600 text-white px-4 py-2 rounded"
           >
-            Kembali
+            Back
           </button>
         </div>
       </div>
@@ -158,29 +158,29 @@ export default function UserDetailPage() {
   return (
     <div className="p-6 relative min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Detail Pengguna & Laporan</h1>
+        <h1 className="text-2xl font-bold">User & Report Details</h1>
         <Button
           onClick={() => router.push('/admin')}
           className="bg-gray-600 text-white hover:bg-gray-800"
         >
-          Kembali
+          Back
         </Button>
       </div>
 
       {/* Student Information Section */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Informasi Siswa</CardTitle>
-          <CardDescription>Detail informasi siswa</CardDescription>
+          <CardTitle>Student Information</CardTitle>
+          <CardDescription>Student information details</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Nama</label>
+              <label className="block text-sm font-medium text-gray-700">Name</label>
               <p className="mt-1 p-2 bg-gray-50 rounded">{user?.full_name || "-"}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Kelas</label>
+              <label className="block text-sm font-medium text-gray-700">Class</label>
               <p className="mt-1 p-2 bg-gray-50 rounded">{user?.user_class || "-"}</p>
             </div>
           </div>
@@ -192,20 +192,20 @@ export default function UserDetailPage() {
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle>Daftar Laporan</CardTitle>
-              <CardDescription>Histori laporan perkembangan siswa</CardDescription>
+              <CardTitle>Report List</CardTitle>
+              <CardDescription>Student progress report history</CardDescription>
             </div>
             <Button onClick={handleAddReport} className="bg-green-600 hover:bg-green-700">
-              Tambah Laporan
+              Add Report
             </Button>
           </div>
         </CardHeader>
         <CardContent>
           {reports.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-500">Belum ada laporan untuk siswa ini</p>
+              <p className="text-gray-500">No reports for this student yet</p>
               <Button onClick={handleAddReport} className="mt-4">
-                Tambah Laporan Pertama
+                Add First Report
               </Button>
             </div>
           ) : (
@@ -213,16 +213,16 @@ export default function UserDetailPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>No</TableHead>
-                  <TableHead>Tanggal</TableHead>
-                  <TableHead>Guru</TableHead>
-                  <TableHead className="text-right">Aksi</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Teacher</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {reports.map((report, index) => (
                   <TableRow key={report.id}>
                     <TableCell>{index + 1}</TableCell>
-                    <TableCell>{new Date(report.created_at).toLocaleDateString('id-ID')}</TableCell>
+                    <TableCell>{new Date(report.created_at).toLocaleDateString('en-US')}</TableCell>
                     <TableCell>{report.teacher_name || ""}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
@@ -238,7 +238,7 @@ export default function UserDetailPage() {
                           onClick={() => handleDeleteReport(report.id)}
                         >
 
-                          Hapus
+                          Delete
                         </Button>
                       </div>
                     </TableCell>

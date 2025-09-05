@@ -32,9 +32,9 @@ export default async function handler(
       return res.status(500).json({ error: error.message })
     }
 
-    // Update password jika ada
+    // Update password if provided
     if (password && password.length > 0) {
-      // Cari user ID berdasarkan email
+      // Find user ID based on email
       const { data: userData, error: userError } = await supabaseAdmin.auth.admin.listUsers()
       if (userError) {
         console.error("List users error:", userError)

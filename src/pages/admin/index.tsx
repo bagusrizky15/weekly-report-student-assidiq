@@ -19,7 +19,7 @@ export default function AdminDashboard() {
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
-    // Cek session
+    // Check session
     useEffect(() => {
         const checkSession = async () => {
             try {
@@ -40,7 +40,7 @@ export default function AdminDashboard() {
         checkSession()
     }, [router])
 
-    // Fetch user dari tabel 'users'
+    // Fetch users from 'users' table
     const fetchUsers = async () => {
         try {
             const res = await fetch("/api/get-students")
@@ -58,7 +58,7 @@ export default function AdminDashboard() {
         }
     }
 
-    // Fungsi update user
+    // Update user function
     const handleEditUser = async () => {
         if (!selectedUser) return
 
@@ -77,13 +77,13 @@ export default function AdminDashboard() {
         if (result.error) {
             alert("❌ " + result.error)
         } else {
-            alert("✅ User berhasil diupdate!")
+            alert("✅ User updated successfully!")
             setIsEditDialogOpen(false)
             fetchUsers()
         }
     }
 
-    // Fungsi delete user
+    // Delete user function
     const handleDeleteUser = async () => {
         if (!selectedUser) return
 
@@ -97,7 +97,7 @@ export default function AdminDashboard() {
         if (result.error) {
             alert("❌ " + result.error)
         } else {
-            alert("✅ User berhasil dihapus!")
+            alert("✅ User deleted successfully!")
             setIsDeleteDialogOpen(false)
             fetchUsers()
         }
@@ -114,7 +114,7 @@ export default function AdminDashboard() {
         if (result.error) {
             alert("❌ " + result.error)
         } else {
-            alert("✅ User berhasil ditambahkan!")
+            alert("✅ User added successfully!")
             setEmail("")
             setPassword("")
             setFullName("")
@@ -155,15 +155,15 @@ export default function AdminDashboard() {
                 </button>
             </div>
 
-            {/* Tabel User */}
+            {/* User Table */}
             <div className="bg-white p-6 rounded-2xl shadow mb-6 overflow-x-auto h-screen flex flex-col">
-                <h2 className="text-xl font-bold mb-4">Daftar User</h2>
+                <h2 className="text-xl font-bold mb-4">User List</h2>
                 <div className="flex-1 overflow-y-auto">
                     <table className="min-w-full border border-gray-200">
                         <thead className="bg-gray-100">
                             <tr>
                                 <th className="py-2 px-4 border-b text-left">No</th>
-                                <th className="py-2 px-4 border-b text-left">Nama</th>
+                                <th className="py-2 px-4 border-b text-left">Name</th>
                                 <th className="py-2 px-4 border-b text-left">Email</th>
                                 <th className="py-2 px-4 border-b text-left">Class</th>
                                 <th className="py-2 px-4 border-b text-left"></th>
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
                             {users.length === 0 ? (
                                 <tr>
                                     <td colSpan={7} className="py-4 text-center">
-                                        Tidak ada data user
+                                        No user data available
                                     </td>
                                 </tr>
                             ) : (
@@ -223,7 +223,7 @@ export default function AdminDashboard() {
             </div>
 
 
-            {/* Dialog Edit User */}
+            {/* Edit User Dialog */}
             {isEditDialogOpen && selectedUser && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md relative">
@@ -261,7 +261,7 @@ export default function AdminDashboard() {
                         />
                         <input
                             type="password"
-                            placeholder="Password (opsional)"
+                            placeholder="Password (optional)"
                             className="border p-2 w-full mb-4 rounded"
                             value={selectedUser.user_password || ""}
                             onChange={(e) =>
@@ -278,13 +278,13 @@ export default function AdminDashboard() {
                 </div>
             )}
 
-            {/* Dialog Delete User */}
+            {/* Delete User Dialog */}
             {isDeleteDialogOpen && selectedUser && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-sm relative">
-                        <h2 className="text-xl font-bold mb-4">Konfirmasi Hapus</h2>
+                        <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
                         <p className="mb-4">
-                            Apakah Anda yakin ingin menghapus user{" "}
+                            Are you sure you want to delete user{" "}
                             <span className="font-semibold">{selectedUser.full_name}</span>?
                         </p>
                         <div className="flex justify-end gap-2">
@@ -292,28 +292,28 @@ export default function AdminDashboard() {
                                 onClick={() => setIsDeleteDialogOpen(false)}
                                 className="px-4 py-2 border rounded"
                             >
-                                Batal
+                                Cancel
                             </button>
                             <button
                                 onClick={handleDeleteUser}
                                 className="px-4 py-2 bg-red-600 text-white rounded"
                             >
-                                Hapus
+                                Delete
                             </button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Tombol Tambah User */}
+            {/* Add User Button */}
             <button
                 onClick={() => setIsDialogOpen(true)}
                 className="fixed bottom-6 right-6 bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-blue-700 transition"
             >
-                + Tambah User
+                + Add User
             </button>
 
-            {/* Dialog Tambah User */}
+            {/* Add User Dialog */}
             {isDialogOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md relative">
@@ -323,10 +323,10 @@ export default function AdminDashboard() {
                         >
                             ✕
                         </button>
-                        <h2 className="text-xl font-bold mb-4">Tambah User</h2>
+                        <h2 className="text-xl font-bold mb-4">Add User</h2>
                         <input
                             type="email"
-                            placeholder="Email (Wajib)"
+                            placeholder="Email (Required)"
                             className="border p-2 w-full mb-2 rounded"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -356,7 +356,7 @@ export default function AdminDashboard() {
                             onClick={handleAddUser}
                             className="bg-blue-600 text-white px-4 py-2 rounded-lg w-full"
                         >
-                            Tambahkan User
+                            Add User
                         </button>
                     </div>
                 </div>

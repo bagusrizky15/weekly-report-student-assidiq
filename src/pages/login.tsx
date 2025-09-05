@@ -50,7 +50,7 @@ export default function LoginPage() {
     setLoading(false)
 
     if (error) {
-      setError("Maaf, email / password yang Anda masukan salah.")
+      setError("Sorry, the email / password you entered is incorrect.")
     } else {
       setSuccess(true)
       setTimeout(() => {
@@ -86,7 +86,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="contoh@siswa.com"
+                placeholder="example@student.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -112,7 +112,7 @@ export default function LoginPage() {
         </CardContent>
         <CardFooter>
           <p className="text-xs text-gray-500">
-            Gunakan email & password yang diberikan admin.
+            Use the email & password provided by admin.
           </p>
         </CardFooter>
       </Card>
@@ -141,9 +141,9 @@ export default function LoginPage() {
         <div className="absolute top-6 right-6 w-[300px]">
           <Alert className="bg-green-50 border-green-500 text-green-700">
             <CheckCircle2Icon className="text-green-600" />
-            <AlertTitle>Login Berhasil!</AlertTitle>
+            <AlertTitle>Login Successful!</AlertTitle>
             <AlertDescription>
-              Anda akan diarahkan ke dashboard...
+              You will be redirected to the dashboard...
             </AlertDescription>
           </Alert>
         </div>

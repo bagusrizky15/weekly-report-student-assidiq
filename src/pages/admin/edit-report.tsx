@@ -65,7 +65,7 @@ export default function EditReportPage() {
 
   useEffect(() => {
     if (!reportId) {
-      setError("ID laporan tidak ditemukan")
+      setError("Report ID not found")
       setLoading(false)
       return
     }
@@ -79,7 +79,7 @@ export default function EditReportPage() {
           .single()
 
         if (error) {
-          setError("Gagal mengambil data laporan: " + error.message)
+          setError("Failed to fetch report data: " + error.message)
         } else if (data) {
           setReport(data)
           // Set all form fields
@@ -102,11 +102,11 @@ export default function EditReportPage() {
             setReportDate(new Date(data.created_at))
           }
         } else {
-          setError("Laporan tidak ditemukan")
+          setError("Report not found")
         }
         setLoading(false)
       } catch (err) {
-        setError("Terjadi kesalahan tidak terduga")
+        setError("An unexpected error occurred")
         console.error(err)
         setLoading(false)
       }
@@ -119,7 +119,7 @@ export default function EditReportPage() {
     e.preventDefault()
     
     if (!reportId) {
-      alert("ID laporan tidak ditemukan.")
+      alert("Report ID not found.")
       return
     }
     
@@ -153,14 +153,14 @@ export default function EditReportPage() {
       const result = await res.json();
 
       if (!res.ok) {
-        alert("Gagal menyimpan laporan: " + result.error);
+        alert("Failed to save report: " + result.error);
       } else {
-        alert("Laporan berhasil diperbarui!");
+        alert("Report updated successfully!");
         router.push(`/admin/user-detail?email=${report?.user_email}`);
       }
     } catch (err) {
       console.error("Error saving report:", err);
-      alert("Terjadi kesalahan saat menyimpan laporan");
+      alert("An error occurred while saving the report");
     }
   }
 
@@ -182,7 +182,7 @@ export default function EditReportPage() {
             onClick={() => router.back()} 
             className="mt-2 bg-red-600 text-white px-4 py-2 rounded"
           >
-            Kembali
+            Back
           </button>
         </div>
       </div>
@@ -192,7 +192,7 @@ export default function EditReportPage() {
   return (
     <div className="p-6 relative min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Edit Laporan</h1>
+        <h1 className="text-2xl font-bold">Edit Report</h1>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -200,12 +200,12 @@ export default function EditReportPage() {
           {/* Student Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Informasi Siswa</CardTitle>
-              <CardDescription>Detail informasi siswa</CardDescription>
+              <CardTitle>Student Information</CardTitle>
+              <CardDescription>Student information details</CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="studentName">Nama Siswa</Label>
+                <Label htmlFor="studentName">Student Name</Label>
                 <Input
                   id="studentName"
                   value={studentName}
@@ -214,7 +214,7 @@ export default function EditReportPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="studentClass">Kelas</Label>
+                <Label htmlFor="studentClass">Class</Label>
                 <Input
                   id="studentClass"
                   value={studentClass}
@@ -223,7 +223,7 @@ export default function EditReportPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="reportDate">Tanggal</Label>
+                <Label htmlFor="reportDate">Date</Label>
                 <DatePicker
                   date={reportDate}
                   onDateChange={(date) => date && setReportDate(date)}
@@ -239,7 +239,7 @@ export default function EditReportPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="halaqohName">Nama Halaqoh</Label>
+                <Label htmlFor="halaqohName">Halaqoh Name</Label>
                 <Input
                   id="halaqohName"
                   value={halaqohName}
@@ -248,7 +248,7 @@ export default function EditReportPage() {
                 />
               </div>
               <div className="md:col-span-3">
-                <Label htmlFor="teacherName">Nama Guru</Label>
+                <Label htmlFor="teacherName">Teacher Name</Label>
                 <Input
                   id="teacherName"
                   value={teacherName}
@@ -262,8 +262,8 @@ export default function EditReportPage() {
           {/* Tabrizh (Memorization) */}
           <Card>
             <CardHeader>
-              <CardTitle>Tabrizh (Hafalan)</CardTitle>
-              <CardDescription>Informasi hafalan</CardDescription>
+              <CardTitle>Tabrizh (Memorization)</CardTitle>
+              <CardDescription>Memorization information</CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -283,21 +283,21 @@ export default function EditReportPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="verses">Ayat</Label>
+                <Label htmlFor="verses">Verses</Label>
                 <Input
                   id="verses"
                   value={verses}
                   onChange={(e) => setVerses(e.target.value)}
-                  placeholder="Contoh: 1-6"
+                  placeholder="Example: 1-6"
                 />
               </div>
               <div>
-                <Label htmlFor="amountMemorized">Jumlah Hafalan</Label>
+                <Label htmlFor="amountMemorized">Amount Memorized</Label>
                 <Input
                   id="amountMemorized"
                   value={amountMemorized}
                   onChange={(e) => setAmountMemorized(e.target.value)}
-                  placeholder="Contoh: 6 ayat"
+                  placeholder="Example: 6 verses"
                 />
               </div>
             </CardContent>
@@ -306,12 +306,12 @@ export default function EditReportPage() {
           {/* Tahsin (Reading Improvement) */}
           <Card>
             <CardHeader>
-              <CardTitle>Tahsin (Peningkatan Membaca)</CardTitle>
-              <CardDescription>Data pembelajaran</CardDescription>
+              <CardTitle>Tahsin (Reading Improvement)</CardTitle>
+              <CardDescription>Learning data</CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="module">Modul</Label>
+                <Label htmlFor="module">Module</Label>
                 <Input
                   id="module"
                   value={module}
@@ -319,7 +319,7 @@ export default function EditReportPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="chapter">Bab</Label>
+                <Label htmlFor="chapter">Chapter</Label>
                 <Input
                   id="chapter"
                   value={chapter}
@@ -327,21 +327,21 @@ export default function EditReportPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="pages">Halaman</Label>
+                <Label htmlFor="pages">Pages</Label>
                 <Input
                   id="pages"
                   value={pages}
                   onChange={(e) => setPages(e.target.value)}
-                  placeholder="Contoh: 15-20"
+                  placeholder="Example: 15-20"
                 />
               </div>
               <div>
-                <Label htmlFor="lines">Baris</Label>
+                <Label htmlFor="lines">Lines</Label>
                 <Input
                   id="lines"
                   value={lines}
                   onChange={(e) => setLines(e.target.value)}
-                  placeholder="Contoh: 1-10"
+                  placeholder="Example: 1-10"
                 />
               </div>
             </CardContent>
@@ -350,14 +350,14 @@ export default function EditReportPage() {
           {/* Teacher's Notes */}
           <Card>
             <CardHeader>
-              <CardTitle>Catatan Guru</CardTitle>
-              <CardDescription>Catatan mengenai perkembangan siswa</CardDescription>
+              <CardTitle>Teacher's Notes</CardTitle>
+              <CardDescription>Notes on student progress</CardDescription>
             </CardHeader>
             <CardContent>
               <Textarea
                 value={teacherNotes}
                 onChange={(e) => setTeacherNotes(e.target.value)}
-                placeholder="Tulis catatan mengenai perkembangan siswa, evaluasi, dan saran untuk minggu berikutnya..."
+                placeholder="Write notes about student progress, evaluation, and suggestions for next week..."
                 rows={5}
               />
             </CardContent>
@@ -368,10 +368,10 @@ export default function EditReportPage() {
               type="button"
               onClick={() => router.back()}
             >
-              Batal
+              Cancel
             </Button>
             <Button type="submit">
-              Simpan Laporan
+              Save Report
             </Button>
           </div>
         </div>
