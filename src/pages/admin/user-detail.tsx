@@ -73,15 +73,31 @@ export default function UserDetailPage() {
         setLoading(true)
         // Fetch user details from API route
         const userRes = await fetch(`/api/get-user-by-email?email=${encodeURIComponent(userEmail)}`)
-        const userData = await userRes.json()
+        
+        // Check if response is ok and content type is JSON before parsing
+        const contentType = userRes.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          const userData = await userRes.json()
 
-        if (!userRes.ok) {
-          setError("Failed to fetch user data: " + userData.error)
+          if (!userRes.ok) {
+            setError("Failed to fetch user data: " + userData.error)
+            setLoading(false)
+            return
+          }
+
+          setUser(userData)
+        } else {
+          // Handle non-JSON responses (like HTML error pages)
+          const text = await userRes.text();
+          if (!userRes.ok) {
+            setError(`Failed to fetch user data: Server returned ${userRes.status} status`);
+          } else {
+            setError("Failed to fetch user data: Unexpected response format");
+            console.warn("Unexpected response format:", text.substring(0, 100) + "..."); // Log first 100 chars
+          }
           setLoading(false)
           return
         }
-
-        setUser(userData)
 
         // Fetch reports for this user
         const { data: reportData, error: reportError } = await supabaseClient
@@ -103,7 +119,7 @@ export default function UserDetailPage() {
 
         setLoading(false)
       } catch (err) {
-        setError("An unexpected error occurred")
+        setError("An unexpected error occurred: " + (err as Error).message)
         console.error(err)
         setLoading(false)
       }
@@ -143,18 +159,34 @@ export default function UserDetailPage() {
         body: JSON.stringify({ id: reportToDelete }),
       });
 
-      const result = await res.json();
-
-      if (!res.ok) {
-        setError("Failed to delete report: " + result.error);
+      // Check if response is ok and content type is JSON before parsing
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        const result = await res.json();
+        
+        if (!res.ok) {
+          setError("Failed to delete report: " + result.error);
+        } else {
+          // Refresh reports
+          setReports(reports.filter(report => report.id !== reportToDelete));
+          closeDeleteDialog();
+        }
       } else {
-        // Refresh reports
-        setReports(reports.filter(report => report.id !== reportToDelete));
-        closeDeleteDialog();
+        // Handle non-JSON responses (like HTML error pages)
+        const text = await res.text();
+        if (!res.ok) {
+          setError(`Failed to delete report: Server returned ${res.status} status`);
+        } else {
+          // Even for successful responses, if it's not JSON, we should handle it
+          console.warn("Unexpected response format:", text.substring(0, 100) + "..."); // Log first 100 chars
+          // Refresh reports anyway since the response was successful
+          setReports(reports.filter(report => report.id !== reportToDelete));
+          closeDeleteDialog();
+        }
       }
     } catch (err) {
       console.error("Error deleting report:", err);
-      setError("An error occurred while deleting the report");
+      setError("An error occurred while deleting the report: " + (err as Error).message);
     }
   }
 
@@ -395,7 +427,7 @@ export default function UserDetailPage() {
             <Button 
               variant="outline" 
               onClick={closeDeleteDialog}
-              className="flex-1 py-5 border-slate-200 text-slate-700 hover:bg-slate-50"
+              className="bg-white flex-1 py-5 text-slate-700 hover:bg-slate-50"
             >
               Cancel
             </Button>

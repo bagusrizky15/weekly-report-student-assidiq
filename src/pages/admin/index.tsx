@@ -58,6 +58,11 @@ export default function AdminDashboard() {
     const [userClass, setUserClass] = useState("")
     const [loading, setLoading] = useState(true)
     const [users, setUsers] = useState<User[]>([])
+    const [fetchingUsers, setFetchingUsers] = useState(false)
+    const [addingUser, setAddingUser] = useState(false)
+    const [editingUser, setEditingUser] = useState(false)
+    const [deletingUser, setDeletingUser] = useState(false)
+    const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false)
     const router = useRouter()
 
     const [selectedUser, setSelectedUser] = useState<User | null>(null)
@@ -100,18 +105,34 @@ export default function AdminDashboard() {
     // Fetch users from 'users' table
     const fetchUsers = async () => {
         try {
+            setFetchingUsers(true)
             const res = await fetch("/api/get-students")
-            const result = await res.json()
             
-            if (!res.ok) {
-                console.log("Error fetching users:", result.error)
-                return
+            // Check if response is ok and content type is JSON before parsing
+            const contentType = res.headers.get("content-type")
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                const result = await res.json()
+                
+                if (!res.ok) {
+                    console.log("Error fetching users:", result.error)
+                    return
+                }
+                
+                setUsers(result.students as User[])
+                console.log("Fetched data:", result.students)
+            } else {
+                // Handle non-JSON responses (like HTML error pages)
+                await res.text()
+                if (!res.ok) {
+                    console.log(`Server returned ${res.status} status when fetching users`)
+                } else {
+                    console.log("Unexpected response format when fetching users")
+                }
             }
-            
-            setUsers(result.students as User[])
-            console.log("Fetched data:", result.students)
         } catch (error) {
             console.log("Error fetching users:", error)
+        } finally {
+            setFetchingUsers(false)
         }
     }
 
@@ -120,25 +141,48 @@ export default function AdminDashboard() {
         e.preventDefault();
         if (!selectedUser) return
 
-        const res = await fetch("/api/admin/editUser", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                email: selectedUser.user_email,
-                fullName: selectedUser.full_name,
-                userClass: selectedUser.user_class,
-                password: selectedUser.user_password,
-            }),
-        })
+        setEditingUser(true);
+        try {
+            const res = await fetch("/api/admin/editUser", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: selectedUser.user_email,
+                    fullName: selectedUser.full_name,
+                    userClass: selectedUser.user_class,
+                    password: selectedUser.user_password,
+                }),
+            })
 
-        const result = await res.json()
-        if (result.error) {
-            setErrorMessage(result.error)
+            // Check if response is ok and content type is JSON before parsing
+            const contentType = res.headers.get("content-type")
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                const result = await res.json()
+                
+                if (result.error) {
+                    setErrorMessage(result.error)
+                    setIsEditErrorDialogOpen(true)
+                } else {
+                    setIsEditDialogOpen(false)
+                    setIsEditSuccessDialogOpen(true)
+                    fetchUsers()
+                }
+            } else {
+                // Handle non-JSON responses (like HTML error pages)
+                await res.text()
+                if (!res.ok) {
+                    setErrorMessage(`Server returned ${res.status} status`)
+                } else {
+                    setErrorMessage("Unexpected response format")
+                }
+                setIsEditErrorDialogOpen(true)
+            }
+        } catch (error) {
+            console.error("Error editing user:", error)
+            setErrorMessage("An unexpected error occurred while updating the user")
             setIsEditErrorDialogOpen(true)
-        } else {
-            setIsEditDialogOpen(false)
-            setIsEditSuccessDialogOpen(true)
-            fetchUsers()
+        } finally {
+            setEditingUser(false);
         }
     }
 
@@ -146,43 +190,89 @@ export default function AdminDashboard() {
     const handleDeleteUser = async () => {
         if (!selectedUser) return
 
-        const res = await fetch("/api/admin/deleteUser", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: selectedUser.user_email }),
-        })
+        setDeletingUser(true);
+        try {
+            const res = await fetch("/api/admin/deleteUser", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: selectedUser.user_email }),
+            })
 
-        const result = await res.json()
-        if (result.error) {
-            setErrorMessage(result.error)
+            // Check if response is ok and content type is JSON before parsing
+            const contentType = res.headers.get("content-type")
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                const result = await res.json()
+                
+                if (result.error) {
+                    setErrorMessage(result.error)
+                    setIsDeleteErrorDialogOpen(true)
+                } else {
+                    setIsDeleteDialogOpen(false)
+                    setIsDeleteSuccessDialogOpen(true)
+                    fetchUsers()
+                }
+            } else {
+                // Handle non-JSON responses (like HTML error pages)
+                await res.text()
+                if (!res.ok) {
+                    setErrorMessage(`Server returned ${res.status} status`)
+                } else {
+                    setErrorMessage("Unexpected response format")
+                }
+                setIsDeleteErrorDialogOpen(true)
+            }
+        } catch (error) {
+            console.error("Error deleting user:", error)
+            setErrorMessage("An unexpected error occurred while deleting the user")
             setIsDeleteErrorDialogOpen(true)
-        } else {
-            setIsDeleteDialogOpen(false)
-            setIsDeleteSuccessDialogOpen(true)
-            fetchUsers()
+        } finally {
+            setDeletingUser(false);
         }
     }
 
     const handleAddUser = async (e: React.FormEvent) => {
         e.preventDefault();
-        const res = await fetch("/api/admin/addUser", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password, fullName, userClass }),
-        })
+        setAddingUser(true);
+        try {
+            const res = await fetch("/api/admin/addUser", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password, fullName, userClass }),
+            })
 
-        const result = await res.json()
-        if (result.error) {
-            setErrorMessage(result.error)
+            // Check if response is ok and content type is JSON before parsing
+            const contentType = res.headers.get("content-type")
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                const result = await res.json()
+                
+                if (result.error) {
+                    setErrorMessage(result.error)
+                    setIsAddErrorDialogOpen(true)
+                } else {
+                    setEmail("")
+                    setPassword("")
+                    setFullName("")
+                    setUserClass("")
+                    setIsAddDialogOpen(false)
+                    setIsAddSuccessDialogOpen(true)
+                    fetchUsers()
+                }
+            } else {
+                // Handle non-JSON responses (like HTML error pages)
+                await res.text()
+                if (!res.ok) {
+                    setErrorMessage(`Server returned ${res.status} status`)
+                } else {
+                    setErrorMessage("Unexpected response format")
+                }
+                setIsAddErrorDialogOpen(true)
+            }
+        } catch (error) {
+            console.error("Error adding user:", error)
+            setErrorMessage("An unexpected error occurred while adding the user")
             setIsAddErrorDialogOpen(true)
-        } else {
-            setEmail("")
-            setPassword("")
-            setFullName("")
-            setUserClass("")
-            setIsAddDialogOpen(false)
-            setIsAddSuccessDialogOpen(true)
-            fetchUsers()
+        } finally {
+            setAddingUser(false)
         }
     }
 
@@ -193,6 +283,7 @@ export default function AdminDashboard() {
             router.push("/admin/login")
         } catch (error) {
             console.error("Error during logout:", error)
+            // Even if there's an error, redirect to login page
             router.push("/admin/login")
         }
     }
@@ -224,7 +315,7 @@ export default function AdminDashboard() {
                     
                     <div className="flex items-center gap-4">
                         <Button 
-                            onClick={handleLogout}
+                            onClick={() => setIsLogoutDialogOpen(true)}
                             className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                         >
                             <LogOut className="h-4 w-4" />
@@ -346,8 +437,15 @@ export default function AdminDashboard() {
                                                 Cancel
                                             </Button>
                                         </DialogClose>
-                                        <Button type="submit" className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 py-5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
-                                            Create User
+                                        <Button type="submit" className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 py-5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300" disabled={addingUser}>
+                                            {addingUser ? (
+                                                <div className="flex items-center">
+                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                                    Creating...
+                                                </div>
+                                            ) : (
+                                                "Create User"
+                                            )}
                                         </Button>
                                     </DialogFooter>
                                 </form>
@@ -355,7 +453,14 @@ export default function AdminDashboard() {
                         </Dialog>
                     </CardHeader>
                     <CardContent>
-                        {users.length === 0 ? (
+                        {fetchingUsers ? (
+                            <div className="flex justify-center items-center py-12">
+                                <div className="text-center">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                                    <p className="text-gray-600">Loading users...</p>
+                                </div>
+                            </div>
+                        ) : users.length === 0 ? (
                             <div className="text-center py-12">
                                 <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                                 <h3 className="text-lg font-medium text-gray-900 mb-1">No users found</h3>
@@ -519,8 +624,15 @@ export default function AdminDashboard() {
                                         Cancel
                                     </Button>
                                 </DialogClose>
-                                <Button type="submit" className="bg-gradient-to-r from-blue-600 to-indigo-700">
-                                    Update User
+                                <Button type="submit" className="bg-gradient-to-r from-blue-600 to-indigo-700" disabled={editingUser}>
+                                    {editingUser ? (
+                                        <div className="flex items-center">
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                            Updating...
+                                        </div>
+                                    ) : (
+                                        "Update User"
+                                    )}
                                 </Button>
                             </DialogFooter>
                         </form>
@@ -543,8 +655,16 @@ export default function AdminDashboard() {
                         <AlertDialogAction 
                             onClick={handleDeleteUser}
                             className="bg-red-600 hover:bg-red-700"
+                            disabled={deletingUser}
                         >
-                            Delete User
+                            {deletingUser ? (
+                                <div className="flex items-center">
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                    Deleting...
+                                </div>
+                            ) : (
+                                "Delete User"
+                            )}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
@@ -693,6 +813,37 @@ export default function AdminDashboard() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Logout Confirmation Dialog */}
+            <AlertDialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
+                <AlertDialogContent className="bg-white rounded-2xl shadow-xl">
+                    <AlertDialogHeader>
+                        <div className="mx-auto bg-red-100 p-3 rounded-full mb-4">
+                            <LogOut className="h-6 w-6 text-red-600" />
+                        </div>
+                        <AlertDialogTitle className="text-center text-xl font-bold text-gray-800">
+                            Confirm Logout
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-center text-gray-600 mt-2">
+                            Are you sure you want to logout from the admin dashboard?
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex gap-3 pt-4">
+                        <AlertDialogCancel 
+                            className="bg-white flex-1 py-5 text-gray-700 hover:bg-gray-50 rounded-xl"
+                            onClick={() => setIsLogoutDialogOpen(false)}
+                        >
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleLogout}
+                            className="flex-1 py-5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-xl"
+                        >
+                            Logout
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

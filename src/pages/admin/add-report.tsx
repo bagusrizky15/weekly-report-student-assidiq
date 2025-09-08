@@ -8,6 +8,14 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { DatePicker } from "@/components/ui/date-picker"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 // Define user type
 interface User {
@@ -20,6 +28,7 @@ export default function AddReportPage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false)
 
   // Student Information
   const [studentName, setStudentName] = useState("")
@@ -121,13 +130,17 @@ export default function AddReportPage() {
       if (!res.ok) {
         alert("Failed to save report: " + result.error);
       } else {
-        alert("Report saved successfully!");
-        router.push(`/admin/user-detail?email=${userEmail}`);
+        setIsSuccessDialogOpen(true);
       }
     } catch (err) {
       console.error("Error saving report:", err);
       alert("An error occurred while saving the report");
     }
+  }
+
+  const handleSuccessDialogClose = () => {
+    setIsSuccessDialogOpen(false);
+    router.push(`/admin/user-detail?email=${userEmail}`);
   }
 
   if (loading) {
@@ -474,6 +487,40 @@ export default function AddReportPage() {
             </div>
           </div>
         </form>
+
+        {/* Success Dialog */}
+        <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+          <DialogContent className="sm:max-w-[425px] bg-white rounded-2xl shadow-xl">
+            <DialogHeader>
+              <div className="mx-auto bg-green-100 p-3 rounded-full mb-4">
+                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <DialogTitle className="text-center text-2xl font-bold text-slate-800">
+                Report Saved Successfully!
+              </DialogTitle>
+              <DialogDescription className="text-center text-slate-600 mt-2">
+                The student progress report has been saved successfully.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <div className="text-center">
+                <p className="text-slate-700">
+                  You will be redirected to the student details page.
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button 
+                onClick={handleSuccessDialogClose}
+                className="w-full py-5 bg-gradient-to-r from-green-600 to-teal-700 hover:from-green-700 hover:to-teal-800 text-white font-semibold rounded-xl"
+              >
+                Continue
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )
