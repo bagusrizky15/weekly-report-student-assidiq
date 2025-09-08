@@ -56,7 +56,7 @@ export default function EditReportPage() {
   const [pages, setPages] = useState("")
   const [lines, setLines] = useState("")
   
-  // Teacher's Notes
+  // Teacher&#39;s Notes
   const [teacherNotes, setTeacherNotes] = useState("")
   
   const router = useRouter()
@@ -347,10 +347,10 @@ export default function EditReportPage() {
             </CardContent>
           </Card>
 
-          {/* Teacher's Notes */}
+          {/* Teacher&#39;s Notes */}
           <Card>
             <CardHeader>
-              <CardTitle>Teacher's Notes</CardTitle>
+              <CardTitle>Teacher&#39;s Notes</CardTitle>
               <CardDescription>Notes on student progress</CardDescription>
             </CardHeader>
             <CardContent>

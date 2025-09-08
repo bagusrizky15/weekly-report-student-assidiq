@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { BookOpen, User, Calendar, Trophy, FileText, GraduationCap } from "lucide-react"
 
 // Define report type
 interface Report {
@@ -114,141 +115,220 @@ export default function UserReportDetail() {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <p>Loading...</p>
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading report details...</p>
+        </div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-          <strong className="font-bold">Error: </strong>
-          <span className="block sm:inline">{error}</span>
-          <button 
-            onClick={handleLogout} 
-            className="mt-2 bg-red-600 text-white px-4 py-2 rounded"
-          >
-            Logout
-          </button>
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div className="bg-white rounded-xl shadow-lg p-6 max-w-md w-full">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative" role="alert">
+            <div className="flex items-center mb-2">
+              <svg className="h-5 w-5 text-red-500 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <strong className="font-bold">Error</strong>
+            </div>
+            <span className="block sm:inline">{error}</span>
+            <button 
+              onClick={handleLogout} 
+              className="mt-4 w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="p-6 relative min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Report Details</h1>
-        <Button
-          onClick={() => router.push('/user-dashboard')}
-          className="bg-gray-600 text-white hover:bg-gray-800"
-        >
-          Back
-        </Button>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 md:p-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Report Details</h1>
+            <p className="text-gray-600 mt-2">Weekly progress report for {report?.student_name}</p>
+          </div>
+          
+          <Button
+            onClick={() => router.push('/user-dashboard')}
+            className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+          >
+            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+            </svg>
+            Back to Dashboard
+          </Button>
+        </div>
+
+        {/* Report Header Card */}
+        <Card className="mb-8 border-0 shadow-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl overflow-hidden">
+          <div className="p-6 md:p-8">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+              <div>
+                <h2 className="text-2xl font-bold">{report?.student_name}</h2>
+                <p className="text-blue-100 mt-1">Class: {report?.student_class || "-"}</p>
+                <div className="flex items-center mt-3">
+                  <Calendar className="h-5 w-5 text-blue-200 mr-2" />
+                  <p className="text-blue-100">
+                    {report?.created_at ? new Date(report.created_at).toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    }) : "-"}
+                  </p>
+                </div>
+              </div>
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                <div className="flex items-center">
+                  <Trophy className="h-8 w-8 text-yellow-300 mr-3" />
+                  <div>
+                    <p className="text-sm text-blue-100">Level</p>
+                    <p className="text-xl font-bold">{report?.student_level || "-"}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Student Information */}
+          <Card className="border-0 shadow-lg rounded-2xl overflow-hidden">
+            <CardHeader className="bg-gray-50">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-100 p-2 rounded-lg">
+                  <User className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Student Information</CardTitle>
+                  <CardDescription>Personal and academic details</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Student Name</label>
+                  <p className="text-lg font-medium text-gray-900">{report?.student_name || "-"}</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Class</label>
+                  <p className="text-lg font-medium text-gray-900">{report?.student_class || "-"}</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Halaqoh Name</label>
+                  <p className="text-lg font-medium text-gray-900">{report?.halaqoh_name || "-"}</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Teacher Name</label>
+                  <p className="text-lg font-medium text-gray-900">{report?.teacher_name || "-"}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Tahfizh (Memorization) */}
+          <Card className="border-0 shadow-lg rounded-2xl overflow-hidden">
+            <CardHeader className="bg-gray-50">
+              <div className="flex items-center gap-3">
+                <div className="bg-green-100 p-2 rounded-lg">
+                  <BookOpen className="h-6 w-6 text-green-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Tahfizh (Memorization)</CardTitle>
+                  <CardDescription>Quran memorization progress</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Juz</label>
+                  <p className="text-lg font-medium text-gray-900">{report?.juz || "-"}</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Surah</label>
+                  <p className="text-lg font-medium text-gray-900">{report?.surah || "-"}</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Verses</label>
+                  <p className="text-lg font-medium text-gray-900">{report?.verses || "-"}</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Amount Memorized</label>
+                  <p className="text-lg font-medium text-gray-900">{report?.amount_memorized || "-"}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Tahsin (Reading Improvement) */}
+          <Card className="border-0 shadow-lg rounded-2xl overflow-hidden">
+            <CardHeader className="bg-gray-50">
+              <div className="flex items-center gap-3">
+                <div className="bg-amber-100 p-2 rounded-lg">
+                  <GraduationCap className="h-6 w-6 text-amber-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Tahsin (Reading Improvement)</CardTitle>
+                  <CardDescription>Quran reading development</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Module</label>
+                  <p className="text-lg font-medium text-gray-900">{report?.module || "-"}</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Chapter</label>
+                  <p className="text-lg font-medium text-gray-900">{report?.chapter || "-"}</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Pages</label>
+                  <p className="text-lg font-medium text-gray-900">{report?.pages || "-"}</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Lines</label>
+                  <p className="text-lg font-medium text-gray-900">{report?.lines || "-"}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Teacher's Notes */}
+          <Card className="border-0 shadow-lg rounded-2xl overflow-hidden lg:col-span-2">
+            <CardHeader className="bg-gray-50">
+              <div className="flex items-center gap-3">
+                <div className="bg-purple-100 p-2 rounded-lg">
+                  <FileText className="h-6 w-6 text-purple-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Teacher&#39;s Notes</CardTitle>
+                  <CardDescription>Evaluation and recommendations</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="bg-gray-50 rounded-xl p-6 min-h-[150px]">
+                <p className="text-gray-700 whitespace-pre-line">
+                  {report?.teacher_notes || "No notes from teacher"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-
-      {/* Student Information */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Student Information</CardTitle>
-          <CardDescription>Student information details</CardDescription>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Student Name</label>
-            <p className="mt-1 p-2 bg-gray-50 rounded">{report?.student_name || "-"}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Class</label>
-            <p className="mt-1 p-2 bg-gray-50 rounded">{report?.student_class || "-"}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Date</label>
-            <p className="mt-1 p-2 bg-gray-50 rounded">
-              {report?.created_at ? new Date(report.created_at).toLocaleDateString('en-US') : "-"}
-            </p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Level</label>
-            <p className="mt-1 p-2 bg-gray-50 rounded">{report?.student_level || "-"}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Halaqoh Name</label>
-            <p className="mt-1 p-2 bg-gray-50 rounded">{report?.halaqoh_name || "-"}</p>
-          </div>
-          <div className="md:col-span-3">
-            <label className="block text-sm font-medium text-gray-700">Teacher Name</label>
-            <p className="mt-1 p-2 bg-gray-50 rounded">{report?.teacher_name || "-"}</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Tabrizh (Memorization) */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Tahfizh (Memorization)</CardTitle>
-          <CardDescription>Memorization information</CardDescription>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Juz</label>
-            <p className="mt-1 p-2 bg-gray-50 rounded">{report?.juz || "-"}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Surah</label>
-            <p className="mt-1 p-2 bg-gray-50 rounded">{report?.surah || "-"}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Verses</label>
-            <p className="mt-1 p-2 bg-gray-50 rounded">{report?.verses || "-"}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Amount Memorized</label>
-            <p className="mt-1 p-2 bg-gray-50 rounded">{report?.amount_memorized || "-"}</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Tahsin (Reading Improvement) */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Tahsin (Reading Improvement)</CardTitle>
-          <CardDescription>Learning data</CardDescription>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Module</label>
-            <p className="mt-1 p-2 bg-gray-50 rounded">{report?.module || "-"}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Chapter</label>
-            <p className="mt-1 p-2 bg-gray-50 rounded">{report?.chapter || "-"}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Pages</label>
-            <p className="mt-1 p-2 bg-gray-50 rounded">{report?.pages || "-"}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Lines</label>
-            <p className="mt-1 p-2 bg-gray-50 rounded">{report?.lines || "-"}</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Teacher's Notes */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Teacher's Notes</CardTitle>
-          <CardDescription>Notes on student progress</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="p-4 bg-gray-50 rounded min-h-[100px]">
-            {report?.teacher_notes || "No notes from teacher"}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }
