@@ -6,4 +6,5 @@ export interface User {
   user_class: string;
   user_password?: string;
   role?: string;
+  avatar_url?: string;
 }

@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: "Supabase admin client not initialized" })
   }
 
-  const { email, password, fullName, userClass } = req.body
+  const { email, password, fullName, userClass, avatarUrl } = req.body
 
   try {
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
@@ -41,15 +41,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(500).json({ error: fetchError.message })
       }
 
+      // Prepare profile data
+      const profileData = {
+        id: userId,
+        full_name: fullName,
+        user_email: email,
+        user_class: userClass,
+        role: "student", // Default role for new users
+        avatar_url: avatarUrl || null // Add avatar URL if provided
+      };
+
       // If profile doesn't exist, create it
       if (!existingProfile) {
-        const { error: profileError } = await supabaseAdmin.from("profiles").insert({
-          id: userId,
-          full_name: fullName,
-          user_email: email,
-          user_class: userClass,
-          role: "student" // Default role for new users
-        })
+        const { error: profileError } = await supabaseAdmin.from("profiles").insert(profileData)
 
         if (profileError) {
           console.error("Profile insert error:", profileError)
@@ -61,12 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // If profile exists, update it
         const { error: profileError } = await supabaseAdmin
           .from("profiles")
-          .update({
-            full_name: fullName,
-            user_email: email,
-            user_class: userClass,
-            role: "student"
-          })
+          .update(profileData)
           .eq("id", userId)
 
         if (profileError) {

@@ -56,6 +56,10 @@ export default function AdminDashboard() {
     const [password, setPassword] = useState("")
     const [fullName, setFullName] = useState("")
     const [userClass, setUserClass] = useState("")
+    const [profilePicture, setProfilePicture] = useState<File | null>(null)
+    const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null)
+    const [editProfilePicture, setEditProfilePicture] = useState<File | null>(null)
+    const [editProfilePicturePreview, setEditProfilePicturePreview] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
     const [users, setUsers] = useState<User[]>([])
     const [fetchingUsers, setFetchingUsers] = useState(false)
@@ -81,6 +85,8 @@ export default function AdminDashboard() {
     const [isDeleteErrorDialogOpen, setIsDeleteErrorDialogOpen] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
 
+    // State for edit user success and error dialogs
+
     // Check session
     useEffect(() => {
         const checkSession = async () => {
@@ -103,38 +109,45 @@ export default function AdminDashboard() {
     }, [router])
 
     // Fetch users from 'users' table
-    const fetchUsers = async () => {
-        try {
-            setFetchingUsers(true)
-            const res = await fetch("/api/get-students")
-            
-            // Check if response is ok and content type is JSON before parsing
-            const contentType = res.headers.get("content-type")
-            if (contentType && contentType.indexOf("application/json") !== -1) {
-                const result = await res.json()
-                
-                if (!res.ok) {
-                    console.log("Error fetching users:", result.error)
-                    return
-                }
-                
-                setUsers(result.students as User[])
-                console.log("Fetched data:", result.students)
-            } else {
-                // Handle non-JSON responses (like HTML error pages)
-                await res.text()
-                if (!res.ok) {
-                    console.log(`Server returned ${res.status} status when fetching users`)
-                } else {
-                    console.log("Unexpected response format when fetching users")
-                }
-            }
-        } catch (error) {
-            console.log("Error fetching users:", error)
-        } finally {
-            setFetchingUsers(false)
+  const fetchUsers = async () => {
+    try {
+      setFetchingUsers(true)
+      const res = await fetch("/api/get-students")
+      
+      // Check if response is ok and content type is JSON before parsing
+      const contentType = res.headers.get("content-type")
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        const result = await res.json()
+        
+        if (!res.ok) {
+          console.log("Error fetching users:", result.error)
+          return
         }
+        
+        console.log("Fetched users data:", result.students)
+        // Log users with avatar_url to see which ones have avatars
+        result.students.forEach((user: User, index: number) => {
+          if (user.avatar_url) {
+            console.log(`User ${index + 1} (${user.full_name}) has avatar:`, user.avatar_url)
+          }
+        })
+        setUsers(result.students as User[])
+        console.log("Fetched data:", result.students)
+      } else {
+        // Handle non-JSON responses (like HTML error pages)
+        await res.text()
+        if (!res.ok) {
+          console.log(`Server returned ${res.status} status when fetching users`)
+        } else {
+          console.log("Unexpected response format when fetching users")
+        }
+      }
+    } catch (error) {
+      console.log("Error fetching users:", error)
+    } finally {
+      setFetchingUsers(false)
     }
+  }
 
     // Update user function
     const handleEditUser = async (e: React.FormEvent) => {
@@ -143,6 +156,42 @@ export default function AdminDashboard() {
 
         setEditingUser(true);
         try {
+            // First handle profile picture upload/removal
+            let avatarUrl = selectedUser.avatar_url || null;
+            
+            // If user explicitly wants to remove the picture
+            if (selectedUser.avatar_url === undefined) {
+                avatarUrl = null;
+            } 
+            // If user uploaded a new picture
+            else if (editProfilePicture) {
+                const fileExt = editProfilePicture.name.split('.').pop();
+                const fileName = `${Math.random()}.${fileExt}`;
+                const filePath = `avatars/${fileName}`;
+
+                const { error: uploadError } = await supabaseClient.storage
+                    .from('avatars')
+                    .upload(filePath, editProfilePicture);
+
+                if (uploadError) {
+                    console.error("Error uploading profile picture:", uploadError);
+                    setErrorMessage("Failed to upload profile picture: " + uploadError.message);
+                    setIsEditErrorDialogOpen(true);
+                    setEditingUser(false);
+                    return;
+                }
+
+                // Get public URL
+                const { data: { publicUrl } } = supabaseClient.storage
+                    .from('avatars')
+                    .getPublicUrl(filePath);
+                
+                avatarUrl = publicUrl;
+                console.log("Uploaded avatar URL:", avatarUrl);
+                console.log("File path used:", filePath);
+            }
+            // If no changes to profile picture, keep existing one
+
             const res = await fetch("/api/admin/editUser", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -151,8 +200,17 @@ export default function AdminDashboard() {
                     fullName: selectedUser.full_name,
                     userClass: selectedUser.user_class,
                     password: selectedUser.user_password,
+                    avatarUrl: avatarUrl, // Pass avatar URL to API
                 }),
             })
+            
+            console.log("Sending edit user data:", {
+                email: selectedUser.user_email,
+                fullName: selectedUser.full_name,
+                userClass: selectedUser.user_class,
+                password: selectedUser.user_password,
+                avatarUrl: avatarUrl,
+            });
 
             // Check if response is ok and content type is JSON before parsing
             const contentType = res.headers.get("content-type")
@@ -163,6 +221,9 @@ export default function AdminDashboard() {
                     setErrorMessage(result.error)
                     setIsEditErrorDialogOpen(true)
                 } else {
+                    // Reset edit profile picture state
+                    setEditProfilePicture(null);
+                    setEditProfilePicturePreview(null);
                     setIsEditDialogOpen(false)
                     setIsEditSuccessDialogOpen(true)
                     fetchUsers()
@@ -213,9 +274,9 @@ export default function AdminDashboard() {
                 }
             } else {
                 // Handle non-JSON responses (like HTML error pages)
-                await res.text()
+                const text = await res.text()
                 if (!res.ok) {
-                    setErrorMessage(`Server returned ${res.status} status`)
+                    setErrorMessage(`Server returned ${res.status} status: ${text}`)
                 } else {
                     setErrorMessage("Unexpected response format")
                 }
@@ -230,14 +291,95 @@ export default function AdminDashboard() {
         }
     }
 
+    const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        console.log("File input changed:", e.target.files);
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            console.log("Selected file:", file);
+            setProfilePicture(file);
+            
+            // Create preview
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                if (event.target?.result) {
+                    console.log("Preview URL created:", event.target.result);
+                    setProfilePicturePreview(event.target.result as string);
+                }
+            };
+            reader.readAsDataURL(file);
+        } else {
+            // Reset if no file selected
+            console.log("No file selected, resetting preview");
+            setProfilePicture(null);
+            setProfilePicturePreview(null);
+        }
+    };
+
+    const handleEditProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        console.log("Edit file input changed:", e.target.files);
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            console.log("Selected edit file:", file);
+            setEditProfilePicture(file);
+            
+            // Create preview
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                if (event.target?.result) {
+                    console.log("Edit preview URL created:", event.target.result);
+                    setEditProfilePicturePreview(event.target.result as string);
+                }
+            };
+            reader.readAsDataURL(file);
+        } else {
+            // Reset if no file selected
+            console.log("No edit file selected, resetting preview");
+            setEditProfilePicture(null);
+            setEditProfilePicturePreview(null);
+        }
+    };
+
     const handleAddUser = async (e: React.FormEvent) => {
         e.preventDefault();
         setAddingUser(true);
         try {
+            // First upload profile picture if provided
+            let avatarUrl = null;
+            if (profilePicture) {
+                const fileExt = profilePicture.name.split('.').pop();
+                const fileName = `${Math.random()}.${fileExt}`;
+                const filePath = `avatars/${fileName}`;
+
+                const { error: uploadError } = await supabaseClient.storage
+                    .from('avatars')
+                    .upload(filePath, profilePicture);
+
+                if (uploadError) {
+                    console.error("Error uploading profile picture:", uploadError);
+                    setErrorMessage("Failed to upload profile picture: " + uploadError.message);
+                    setIsAddErrorDialogOpen(true);
+                    setAddingUser(false);
+                    return;
+                }
+
+                // Get public URL
+                const { data: { publicUrl } } = supabaseClient.storage
+                    .from('avatars')
+                    .getPublicUrl(filePath);
+                
+                avatarUrl = publicUrl;
+            }
+
             const res = await fetch("/api/admin/addUser", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password, fullName, userClass }),
+                body: JSON.stringify({ 
+                    email, 
+                    password, 
+                    fullName, 
+                    userClass,
+                    avatarUrl // Pass avatar URL to API
+                }),
             })
 
             // Check if response is ok and content type is JSON before parsing
@@ -253,6 +395,8 @@ export default function AdminDashboard() {
                     setPassword("")
                     setFullName("")
                     setUserClass("")
+                    setProfilePicture(null)
+                    setProfilePicturePreview(null)
                     setIsAddDialogOpen(false)
                     setIsAddSuccessDialogOpen(true)
                     fetchUsers()
@@ -354,6 +498,50 @@ export default function AdminDashboard() {
                                     </DialogHeader>
                                 </div>
                                 <form onSubmit={handleAddUser} className="space-y-6 py-6 px-6">
+                                    {/* Profile Picture Upload */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="profilePicture" className="text-gray-700 font-medium">Profile Picture</Label>
+                                        <div className="flex items-center gap-4">
+                                            {profilePicturePreview ? (
+                                                <div className="relative">
+                                                    <img 
+                                                        src={profilePicturePreview} 
+                                                        alt="Profile Preview" 
+                                                        className="w-16 h-16 rounded-full object-cover border-2 border-emerald-500"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setProfilePicture(null);
+                                                            setProfilePicturePreview(null);
+                                                        }}
+                                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                                                    >
+                                                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="flex-shrink-0 w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                                                    <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                                    </svg>
+                                                </div>
+                                            )}
+                                            <div className="flex-1">
+                                                <Input
+                                                    id="profilePicture"
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleProfilePictureChange}
+                                                    className="py-2 rounded-lg border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                                                />
+                                                <p className="text-xs text-gray-500 mt-1">Upload a profile picture (optional)</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div className="space-y-2">
                                         <Label htmlFor="email" className="text-gray-700 font-medium">Email</Label>
                                         <div className="relative">
@@ -364,7 +552,7 @@ export default function AdminDashboard() {
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 required
-                                                className="pl-10 py-5 rounded-lg border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                                className="pl-10 py-5 rounded-xl border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                                             />
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                 <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -384,7 +572,7 @@ export default function AdminDashboard() {
                                                 value={fullName}
                                                 onChange={(e) => setFullName(e.target.value)}
                                                 required
-                                                className="pl-10 py-5 rounded-lg border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                                className="pl-10 py-5 rounded-xl border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                                             />
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                 <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -403,7 +591,7 @@ export default function AdminDashboard() {
                                                 value={userClass}
                                                 onChange={(e) => setUserClass(e.target.value)}
                                                 required
-                                                className="pl-10 py-5 rounded-lg border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                                className="pl-10 py-5 rounded-xl border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                                             />
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                 <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -422,7 +610,7 @@ export default function AdminDashboard() {
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
                                                 required
-                                                className="pl-10 py-5 rounded-lg border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                                className="pl-10 py-5 rounded-xl border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                                             />
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                 <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -439,8 +627,8 @@ export default function AdminDashboard() {
                                         </DialogClose>
                                         <Button type="submit" className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 py-5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300" disabled={addingUser}>
                                             {addingUser ? (
-                                                <div className="flex items-center">
-                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                                <div className="flex items-center justify-center">
+                                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                                                     Creating...
                                                 </div>
                                             ) : (
@@ -500,7 +688,30 @@ export default function AdminDashboard() {
                                                 </TableCell>
                                                 <TableCell className="py-4 px-4 text-sm font-medium text-gray-900">
                                                     <div className="flex items-center">
-                                                        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                                        {user.avatar_url ? (
+                                                            <img 
+                                                                src={user.avatar_url} 
+                                                                alt={`${user.full_name}'s profile`} 
+                                                                className="flex-shrink-0 h-10 w-10 rounded-full object-cover border-2 border-blue-200"
+                                                                onError={(e) => {
+                                                                    // Handle broken image by hiding it and showing fallback
+                                                                    const target = e.target as HTMLImageElement;
+                                                                    target.style.display = 'none';
+                                                                    // Find and show the fallback div
+                                                                    const parent = target.parentElement;
+                                                                    if (parent) {
+                                                                      const fallback = parent.querySelector('.fallback-avatar');
+                                                                      if (fallback) {
+                                                                        (fallback as HTMLElement).style.display = 'flex';
+                                                                      }
+                                                                    }
+                                                                }}
+                                                            />
+                                                        ) : null}
+                                                        <div 
+                                                            className={`fallback-avatar flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center ${user.avatar_url ? 'hidden' : ''}`}
+                                                            style={{ display: user.avatar_url ? 'none' : 'flex' }}
+                                                        >
                                                             <span className="text-gray-700 font-medium">
                                                                 {user.full_name?.charAt(0)?.toUpperCase() || 'U'}
                                                             </span>
@@ -563,27 +774,103 @@ export default function AdminDashboard() {
             </div>
 
             {/* Edit User Dialog */}
-            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                <DialogContent className="sm:max-w-[425px] bg-white">
+            <Dialog open={isEditDialogOpen} onOpenChange={(open) => {
+                setIsEditDialogOpen(open);
+                // Reset profile picture state when dialog is closed
+                if (!open) {
+                    setEditProfilePicture(null);
+                    setEditProfilePicturePreview(null);
+                }
+            }}>
+                <DialogContent className="sm:max-w-[450px] bg-white rounded-2xl">
                     <DialogHeader>
-                        <DialogTitle>Edit User</DialogTitle>
-                        <DialogDescription>
+                        <DialogTitle className="text-xl font-bold text-slate-800">Edit User</DialogTitle>
+                        <DialogDescription className="text-slate-600">
                             Update user information. Leave password blank to keep current password.
                         </DialogDescription>
                     </DialogHeader>
                     {selectedUser && (
-                        <form onSubmit={handleEditUser} className="space-y-4">
+                        <form onSubmit={handleEditUser} className="space-y-6">
+                            {/* Profile Picture Section */}
                             <div className="space-y-2">
-                                <Label htmlFor="editEmail">Email</Label>
+                                <Label className="text-sm font-medium text-slate-700">Profile Picture</Label>
+                                <div className="flex items-center gap-4">
+                                    <div className="flex-shrink-0">
+                                        {editProfilePicturePreview ? (
+                                            <img 
+                                                src={editProfilePicturePreview} 
+                                                alt="Profile Preview" 
+                                                className="w-16 h-16 rounded-full object-cover border-2 border-blue-500"
+                                            />
+                                        ) : selectedUser.avatar_url ? (
+                                            <img 
+                                                src={selectedUser.avatar_url} 
+                                                alt="Profile" 
+                                                className="w-16 h-16 rounded-full object-cover border-2 border-blue-500"
+                                            />
+                                        ) : (
+                                            <div className="flex-shrink-0 w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                                                <span className="text-gray-700 font-medium">
+                                                    {selectedUser.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="relative">
+                                            <Input
+                                                id="editProfilePicture"
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleEditProfilePictureChange}
+                                                className="py-2 rounded-lg border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                            />
+                                            <Label 
+                                                htmlFor="editProfilePicture" 
+                                                className="absolute inset-0 flex items-center justify-center bg-white/90 border border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors"
+                                            >
+                                                <span className="text-sm text-slate-600">
+                                                    {editProfilePicture ? "Change Picture" : "Upload Picture"}
+                                                </span>
+                                            </Label>
+                                        </div>
+                                        <div className="flex gap-2 mt-2">
+                                            {selectedUser.avatar_url && !editProfilePicture && (
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        // Remove profile picture
+                                                        setSelectedUser({ ...selectedUser, avatar_url: undefined });
+                                                    }}
+                                                    className="bg-white text-red-600 border-red-300 hover:bg-red-50 hover:border-red-400"
+                                                >
+                                                    Remove Picture
+                                                </Button>
+                                            )}
+                                            <p className="text-xs text-slate-500 mt-1">
+                                                {selectedUser.avatar_url && !editProfilePicture ? "Current profile picture" : 
+                                                 editProfilePicture ? "New profile picture selected" : 
+                                                 "No profile picture set"}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="editEmail" className="text-sm font-medium text-slate-700">Email</Label>
                                 <Input
                                     id="editEmail"
                                     type="email"
                                     value={selectedUser.user_email}
                                     disabled
+                                    className="py-5 rounded-xl border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="editFullName">Full Name</Label>
+                                <Label htmlFor="editFullName" className="text-sm font-medium text-slate-700">Full Name</Label>
                                 <Input
                                     id="editFullName"
                                     type="text"
@@ -592,10 +879,11 @@ export default function AdminDashboard() {
                                         setSelectedUser({ ...selectedUser, full_name: e.target.value })
                                     }
                                     required
+                                    className="py-5 rounded-xl border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="editUserClass">Class</Label>
+                                <Label htmlFor="editUserClass" className="text-sm font-medium text-slate-700">Class</Label>
                                 <Input
                                     id="editUserClass"
                                     type="text"
@@ -604,10 +892,11 @@ export default function AdminDashboard() {
                                         setSelectedUser({ ...selectedUser, user_class: e.target.value })
                                     }
                                     required
+                                    className="py-5 rounded-xl border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="editPassword">Password</Label>
+                                <Label htmlFor="editPassword" className="text-sm font-medium text-slate-700">Password</Label>
                                 <Input
                                     id="editPassword"
                                     type="password"
@@ -616,18 +905,19 @@ export default function AdminDashboard() {
                                     onChange={(e) =>
                                         setSelectedUser({ ...selectedUser, user_password: e.target.value })
                                     }
+                                    className="py-5 rounded-xl border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 />
                             </div>
-                            <DialogFooter>
+                            <DialogFooter className="flex gap-3 pt-4">
                                 <DialogClose asChild>
-                                    <Button className="bg-white border border-gray-300 hover:bg-gray-50 text-black" type="button">
+                                    <Button className="flex-1 py-5 rounded-xl bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 shadow-sm" type="button">
                                         Cancel
                                     </Button>
                                 </DialogClose>
-                                <Button type="submit" className="bg-gradient-to-r from-blue-600 to-indigo-700" disabled={editingUser}>
+                                <Button type="submit" className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 py-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-300" disabled={editingUser}>
                                     {editingUser ? (
-                                        <div className="flex items-center">
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                        <div className="flex items-center justify-center">
+                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                                             Updating...
                                         </div>
                                     ) : (

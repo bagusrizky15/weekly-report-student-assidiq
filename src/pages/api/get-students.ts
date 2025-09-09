@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Get all students
     const { data, error } = await supabaseAdmin
       .from("profiles")
-      .select("full_name, user_email, user_class, role")
+      .select("full_name, user_email, user_class, role, avatar_url")
       .eq("role", "student")
       .order("full_name", { ascending: true })
 
@@ -20,6 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(500).json({ error: error.message })
     }
 
+    console.log("Fetched students data:", data);
     return res.status(200).json({ 
       success: true, 
       students: data

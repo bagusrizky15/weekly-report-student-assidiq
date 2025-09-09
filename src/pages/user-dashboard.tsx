@@ -36,6 +36,7 @@ interface User {
   full_name: string;
   user_email: string;
   user_class: string;
+  avatar_url?: string;
 }
 
 interface Report {
@@ -211,20 +212,61 @@ export default function UserDashboard() {
             <CardDescription className="text-blue-100">Personal details and account information</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-blue-50 rounded-xl p-5 border border-blue-100">
-                <h3 className="text-xs font-medium text-blue-700 uppercase tracking-wider mb-2">Full Name</h3>
-                <p className="font-bold text-lg text-slate-800">{user?.full_name || "-"}</p>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {/* Profile Picture Section */}
+              <div className="md:col-span-1 flex flex-col items-center">
+                <div className="relative">
+                  {user?.avatar_url ? (
+                    <img 
+                      src={user.avatar_url} 
+                      alt={`${user.full_name}'s profile`} 
+                      className="w-32 h-32 rounded-full object-cover border-4 border-blue-100 shadow-lg"
+                      onError={(e) => {
+                        // Handle broken image by hiding it and showing fallback
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        // Find and show the fallback div
+                        const parent = target.parentElement;
+                        if (parent) {
+                          const fallback = parent.querySelector('.fallback-avatar');
+                          if (fallback) {
+                            (fallback as HTMLElement).style.display = 'flex';
+                          }
+                        }
+                      }}
+                    />
+                  ) : null}
+                  <div 
+                    className={`fallback-avatar flex items-center justify-center rounded-full border-4 border-blue-100 shadow-lg bg-gray-200 ${user?.avatar_url ? 'hidden' : ''}`}
+                    style={{ 
+                      display: user?.avatar_url ? 'none' : 'flex',
+                      width: '128px',
+                      height: '128px'
+                    }}
+                  >
+                    <span className="text-4xl font-bold text-gray-700">
+                      {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                    </span>
+                  </div>
+                </div>
               </div>
               
-              <div className="bg-indigo-50 rounded-xl p-5 border border-indigo-100">
-                <h3 className="text-xs font-medium text-indigo-700 uppercase tracking-wider mb-2">Email Address</h3>
-                <p className="font-bold text-lg text-slate-800 truncate">{user?.user_email || "-"}</p>
-              </div>
-              
-              <div className="bg-purple-50 rounded-xl p-5 border border-purple-100">
-                <h3 className="text-xs font-medium text-purple-700 uppercase tracking-wider mb-2">Class</h3>
-                <p className="font-bold text-lg text-slate-800">{user?.user_class || "-"}</p>
+              {/* Information Cards */}
+              <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-blue-50 rounded-xl p-5 border border-blue-100">
+                  <h3 className="text-xs font-medium text-blue-700 uppercase tracking-wider mb-2">Full Name</h3>
+                  <p className="font-bold text-lg text-slate-800">{user?.full_name || "-"}</p>
+                </div>
+                
+                <div className="bg-indigo-50 rounded-xl p-5 border border-indigo-100">
+                  <h3 className="text-xs font-medium text-indigo-700 uppercase tracking-wider mb-2">Email Address</h3>
+                  <p className="font-bold text-lg text-slate-800 truncate">{user?.user_email || "-"}</p>
+                </div>
+                
+                <div className="bg-purple-50 rounded-xl p-5 border border-purple-100">
+                  <h3 className="text-xs font-medium text-purple-700 uppercase tracking-wider mb-2">Class</h3>
+                  <p className="font-bold text-lg text-slate-800">{user?.user_class || "-"}</p>
+                </div>
               </div>
             </div>
           </CardContent>
