@@ -62,11 +62,13 @@ export default function AdminDashboard() {
     const [editProfilePicturePreview, setEditProfilePicturePreview] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
     const [users, setUsers] = useState<User[]>([])
+    const [filteredUsers, setFilteredUsers] = useState<User[]>([])
     const [fetchingUsers, setFetchingUsers] = useState(false)
     const [addingUser, setAddingUser] = useState(false)
     const [editingUser, setEditingUser] = useState(false)
     const [deletingUser, setDeletingUser] = useState(false)
     const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false)
+    const [searchTerm, setSearchTerm] = useState("")
     const router = useRouter()
 
     const [selectedUser, setSelectedUser] = useState<User | null>(null)
@@ -132,6 +134,7 @@ export default function AdminDashboard() {
           }
         })
         setUsers(result.students as User[])
+        setFilteredUsers(result.students as User[])
         console.log("Fetched data:", result.students)
       } else {
         // Handle non-JSON responses (like HTML error pages)
@@ -148,6 +151,21 @@ export default function AdminDashboard() {
       setFetchingUsers(false)
     }
   }
+
+  // Filter users based on search term
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredUsers(users)
+    } else {
+      const term = searchTerm.toLowerCase()
+      const filtered = users.filter(user => 
+        user.full_name.toLowerCase().includes(term) || 
+        user.user_email.toLowerCase().includes(term) ||
+        user.user_class.toLowerCase().includes(term)
+      )
+      setFilteredUsers(filtered)
+    }
+  }, [searchTerm, users])
 
     // Update user function
     const handleEditUser = async (e: React.FormEvent) => {
@@ -477,14 +495,30 @@ export default function AdminDashboard() {
                             <CardTitle className="text-xl">User Management</CardTitle>
                             <CardDescription>Manage student accounts and access</CardDescription>
                         </div>
-                        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                            <DialogTrigger asChild>
-                                <Button className="bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Add New User
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[450px] rounded-xl overflow-hidden shadow-2xl bg-white">
+                        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                            <div className="relative w-full md:w-64">
+                                <Input
+                                    type="text"
+                                    placeholder="Search users..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="pl-10 py-5 rounded-xl border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                />
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                            </div>
+                            </div>
+                            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button className="bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Add New User
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[450px] rounded-xl overflow-hidden shadow-2xl bg-white">
                                 <div className="bg-gradient-to-r from-emerald-500 to-teal-600 p-6 relative overflow-hidden">
                                     <div className="absolute inset-0 opacity-10">
                                         <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
@@ -674,9 +708,9 @@ export default function AdminDashboard() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody className="divide-y divide-gray-200">
-                                        {users.map((user, index) => (
+                                        {filteredUsers.map((user, index) => (
                                             <TableRow 
-                                                key={index} 
+                                                key={user.user_email} 
                                                 className="hover:bg-blue-50 transition-colors duration-150"
                                             >
                                                 <TableCell className="py-4 px-4 text-sm font-medium text-gray-900">
