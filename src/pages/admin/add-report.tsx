@@ -43,6 +43,7 @@ export default function AddReportPage() {
   const [surah, setSurah] = useState("")
   const [verses, setVerses] = useState("")
   const [amountMemorized, setAmountMemorized] = useState("")
+  const [tasmi, setTasmi] = useState("")
 
   // Tahsin (Reading Improvement)
   const [module, setModule] = useState("")
@@ -116,6 +117,7 @@ export default function AddReportPage() {
           surah: surah,
           verses: verses,
           amount_memorized: amountMemorized,
+          tasmi: tasmi,
           module: module,
           chapter: chapter,
           pages: pages,
@@ -312,7 +314,7 @@ export default function AddReportPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
                     <Label htmlFor="juz" className="text-sm font-medium text-slate-700 mb-2">
                       Juz
@@ -359,6 +361,18 @@ export default function AddReportPage() {
                       onChange={(e) => setAmountMemorized(e.target.value)}
                       className="py-5 rounded-xl border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                       placeholder="Example: 6 verses"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="tasmi" className="text-sm font-medium text-slate-700 mb-2">
+                      Tasmi'
+                    </Label>
+                    <Input
+                      id="tasmi"
+                      value={tasmi}
+                      onChange={(e) => setTasmi(e.target.value)}
+                      className="py-5 rounded-xl border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      placeholder="Example: 1 Juz"
                     />
                   </div>
                 </div>

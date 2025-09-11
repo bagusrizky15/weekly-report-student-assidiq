@@ -26,6 +26,7 @@ interface Report {
   surah: string;
   verses: string;
   amount_memorized: string;
+  tasmi: string;
   module: string;
   chapter: string;
   pages: string;
@@ -250,7 +251,7 @@ export default function UserReportDetail() {
               </div>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Juz</label>
                   <p className="text-lg font-medium text-gray-900">{report?.juz || "-"}</p>
@@ -266,6 +267,10 @@ export default function UserReportDetail() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Amount Memorized</label>
                   <p className="text-lg font-medium text-gray-900">{report?.amount_memorized || "-"}</p>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Tasmi'</label>
+                  <p className="text-lg font-medium text-gray-900">{report?.tasmi || "-"}</p>
                 </div>
               </div>
             </CardContent>
