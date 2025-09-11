@@ -269,7 +269,7 @@ export default function UserReportDetail() {
                   <p className="text-lg font-medium text-gray-900">{report?.amount_memorized || "-"}</p>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Tasmi'</label>
+                  <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">Tasmi</label>
                   <p className="text-lg font-medium text-gray-900">{report?.tasmi || "-"}</p>
                 </div>
               </div>

@@ -365,7 +365,7 @@ export default function AddReportPage() {
                   </div>
                   <div>
                     <Label htmlFor="tasmi" className="text-sm font-medium text-slate-700 mb-2">
-                      Tasmi'
+                      Tasmi
                     </Label>
                     <Input
                       id="tasmi"
