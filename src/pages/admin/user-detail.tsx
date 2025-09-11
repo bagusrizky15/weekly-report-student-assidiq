@@ -48,6 +48,7 @@ interface Report {
   id: string;
   created_at: string;
   teacher_name: string;
+  parent_sign: boolean;
 }
 
 export default function UserDetailPage() {
@@ -347,6 +348,7 @@ export default function UserDetailPage() {
                       <TableHead className="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider">No</TableHead>
                       <TableHead className="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider">Date</TableHead>
                       <TableHead className="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider">Teacher</TableHead>
+                      <TableHead className="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider">Sign</TableHead>
                       <TableHead className="py-4 px-6 text-sm font-semibold text-slate-700 uppercase tracking-wider text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -379,6 +381,15 @@ export default function UserDetailPage() {
                             </div>
                             {report.teacher_name || "Unassigned"}
                           </div>
+                        </TableCell>
+                        <TableCell className="py-4 px-6">
+                          <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            report.parent_sign 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {report.parent_sign ? "Signed" : "Not Signed"}
+                          </span>
                         </TableCell>
                         <TableCell className="py-4 px-6 text-right">
                           <div className="flex justify-end gap-3">

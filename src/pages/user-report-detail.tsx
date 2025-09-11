@@ -11,7 +11,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { BookOpen, User, Calendar, Trophy, FileText, GraduationCap } from "lucide-react"
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { BookOpen, User, Calendar, Trophy, FileText, GraduationCap, CheckCircle } from "lucide-react"
 
 // Define report type
 interface Report {
@@ -32,12 +40,15 @@ interface Report {
   pages: string;
   lines: string;
   teacher_notes: string;
+  parent_sign: boolean;
 }
 
 export default function UserReportDetail() {
   const [report, setReport] = useState<Report | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isSigned, setIsSigned] = useState(false)
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -90,6 +101,7 @@ export default function UserReportDetail() {
         }
         
         setReport(reportData)
+        setIsSigned(reportData.parent_sign || false)
         setLoading(false)
       } catch (err) {
         setError("An unexpected error occurred")
@@ -103,6 +115,31 @@ export default function UserReportDetail() {
       fetchReport()
     }
   }, [searchParams, router])
+
+  const handleSign = async () => {
+    if (!report) return
+
+    try {
+      const { error } = await supabaseClient
+        .from('reports')
+        .update({ parent_sign: true })
+        .eq('id', report.id)
+
+      if (error) {
+        setError(`Failed to sign report: ${error.message}`)
+      } else {
+        setIsSigned(true)
+        setIsSuccessDialogOpen(true)
+      }
+    } catch (err) {
+      setError("An unexpected error occurred while signing.")
+      console.error(err)
+    }
+  }
+
+  const handleSuccessDialogClose = () => {
+    setIsSuccessDialogOpen(false)
+  }
 
   const handleLogout = async () => {
     try {
@@ -333,7 +370,54 @@ export default function UserReportDetail() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Sign Button Section */}
+        <div className="mt-8 flex justify-end">
+          <Button
+            onClick={handleSign}
+            disabled={isSigned}
+            className={`py-6 px-8 rounded-xl font-semibold shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 ${
+              isSigned
+                ? 'bg-green-600 text-white cursor-not-allowed'
+                : 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white hover:shadow-xl'
+            }`}
+          >
+            {isSigned ? (
+              <>
+                <CheckCircle className="h-5 w-5 mr-2" />
+                Signed
+              </>
+            ) : (
+              'Sign Report'
+            )}
+          </Button>
+        </div>
       </div>
+
+      {/* Success Dialog */}
+      <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-white rounded-2xl shadow-xl">
+          <DialogHeader>
+            <div className="mx-auto bg-green-100 p-3 rounded-full mb-4">
+              <CheckCircle className="h-6 w-6 text-green-600" />
+            </div>
+            <DialogTitle className="text-center text-2xl font-bold text-slate-800">
+              Report Signed!
+            </DialogTitle>
+            <DialogDescription className="text-center text-slate-600 mt-2">
+              You have successfully signed this report.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button 
+              onClick={handleSuccessDialogClose}
+              className="w-full py-5 bg-gradient-to-r from-green-600 to-teal-700 hover:from-green-700 hover:to-teal-800 text-white font-semibold rounded-xl"
+            >
+              Continue
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
