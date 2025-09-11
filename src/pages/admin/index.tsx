@@ -4,51 +4,51 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabaseClient } from "@/lib/supabaseClient"
 import { User } from "@/types/user"
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table"
-import { 
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    DialogFooter,
+    DialogClose
 } from "@/components/ui/dialog"
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { 
-  Eye, 
-  Edit, 
-  Trash2, 
-  Plus, 
-  LogOut,
-  Users
+import {
+    Eye,
+    Edit,
+    Trash2,
+    Plus,
+    LogOut,
+    Users
 } from "lucide-react"
 
 export default function AdminDashboard() {
@@ -75,12 +75,12 @@ export default function AdminDashboard() {
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-    
+
     // Success message dialog states
     const [isAddSuccessDialogOpen, setIsAddSuccessDialogOpen] = useState(false)
     const [isEditSuccessDialogOpen, setIsEditSuccessDialogOpen] = useState(false)
     const [isDeleteSuccessDialogOpen, setIsDeleteSuccessDialogOpen] = useState(false)
-    
+
     // Error message dialog states
     const [isAddErrorDialogOpen, setIsAddErrorDialogOpen] = useState(false)
     const [isEditErrorDialogOpen, setIsEditErrorDialogOpen] = useState(false)
@@ -111,61 +111,61 @@ export default function AdminDashboard() {
     }, [router])
 
     // Fetch users from 'users' table
-  const fetchUsers = async () => {
-    try {
-      setFetchingUsers(true)
-      const res = await fetch("/api/get-students")
-      
-      // Check if response is ok and content type is JSON before parsing
-      const contentType = res.headers.get("content-type")
-      if (contentType && contentType.indexOf("application/json") !== -1) {
-        const result = await res.json()
-        
-        if (!res.ok) {
-          console.log("Error fetching users:", result.error)
-          return
-        }
-        
-        console.log("Fetched users data:", result.students)
-        // Log users with avatar_url to see which ones have avatars
-        result.students.forEach((user: User, index: number) => {
-          if (user.avatar_url) {
-            console.log(`User ${index + 1} (${user.full_name}) has avatar:`, user.avatar_url)
-          }
-        })
-        setUsers(result.students as User[])
-        setFilteredUsers(result.students as User[])
-        console.log("Fetched data:", result.students)
-      } else {
-        // Handle non-JSON responses (like HTML error pages)
-        await res.text()
-        if (!res.ok) {
-          console.log(`Server returned ${res.status} status when fetching users`)
-        } else {
-          console.log("Unexpected response format when fetching users")
-        }
-      }
-    } catch (error) {
-      console.log("Error fetching users:", error)
-    } finally {
-      setFetchingUsers(false)
-    }
-  }
+    const fetchUsers = async () => {
+        try {
+            setFetchingUsers(true)
+            const res = await fetch("/api/get-students")
 
-  // Filter users based on search term
-  useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setFilteredUsers(users)
-    } else {
-      const term = searchTerm.toLowerCase()
-      const filtered = users.filter(user => 
-        user.full_name.toLowerCase().includes(term) || 
-        user.user_email.toLowerCase().includes(term) ||
-        user.user_class.toLowerCase().includes(term)
-      )
-      setFilteredUsers(filtered)
+            // Check if response is ok and content type is JSON before parsing
+            const contentType = res.headers.get("content-type")
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                const result = await res.json()
+
+                if (!res.ok) {
+                    console.log("Error fetching users:", result.error)
+                    return
+                }
+
+                console.log("Fetched users data:", result.students)
+                // Log users with avatar_url to see which ones have avatars
+                result.students.forEach((user: User, index: number) => {
+                    if (user.avatar_url) {
+                        console.log(`User ${index + 1} (${user.full_name}) has avatar:`, user.avatar_url)
+                    }
+                })
+                setUsers(result.students as User[])
+                setFilteredUsers(result.students as User[])
+                console.log("Fetched data:", result.students)
+            } else {
+                // Handle non-JSON responses (like HTML error pages)
+                await res.text()
+                if (!res.ok) {
+                    console.log(`Server returned ${res.status} status when fetching users`)
+                } else {
+                    console.log("Unexpected response format when fetching users")
+                }
+            }
+        } catch (error) {
+            console.log("Error fetching users:", error)
+        } finally {
+            setFetchingUsers(false)
+        }
     }
-  }, [searchTerm, users])
+
+    // Filter users based on search term
+    useEffect(() => {
+        if (searchTerm.trim() === "") {
+            setFilteredUsers(users)
+        } else {
+            const term = searchTerm.toLowerCase()
+            const filtered = users.filter(user =>
+                user.full_name.toLowerCase().includes(term) ||
+                user.user_email.toLowerCase().includes(term) ||
+                user.user_class.toLowerCase().includes(term)
+            )
+            setFilteredUsers(filtered)
+        }
+    }, [searchTerm, users])
 
     // Update user function
     const handleEditUser = async (e: React.FormEvent) => {
@@ -176,11 +176,11 @@ export default function AdminDashboard() {
         try {
             // First handle profile picture upload/removal
             let avatarUrl = selectedUser.avatar_url || null;
-            
+
             // If user explicitly wants to remove the picture
             if (selectedUser.avatar_url === undefined) {
                 avatarUrl = null;
-            } 
+            }
             // If user uploaded a new picture
             else if (editProfilePicture) {
                 const fileExt = editProfilePicture.name.split('.').pop();
@@ -203,7 +203,7 @@ export default function AdminDashboard() {
                 const { data: { publicUrl } } = supabaseClient.storage
                     .from('avatars')
                     .getPublicUrl(filePath);
-                
+
                 avatarUrl = publicUrl;
                 console.log("Uploaded avatar URL:", avatarUrl);
                 console.log("File path used:", filePath);
@@ -221,7 +221,7 @@ export default function AdminDashboard() {
                     avatarUrl: avatarUrl, // Pass avatar URL to API
                 }),
             })
-            
+
             console.log("Sending edit user data:", {
                 email: selectedUser.user_email,
                 fullName: selectedUser.full_name,
@@ -234,7 +234,7 @@ export default function AdminDashboard() {
             const contentType = res.headers.get("content-type")
             if (contentType && contentType.indexOf("application/json") !== -1) {
                 const result = await res.json()
-                
+
                 if (result.error) {
                     setErrorMessage(result.error)
                     setIsEditErrorDialogOpen(true)
@@ -281,7 +281,7 @@ export default function AdminDashboard() {
             const contentType = res.headers.get("content-type")
             if (contentType && contentType.indexOf("application/json") !== -1) {
                 const result = await res.json()
-                
+
                 if (result.error) {
                     setErrorMessage(result.error)
                     setIsDeleteErrorDialogOpen(true)
@@ -315,7 +315,7 @@ export default function AdminDashboard() {
             const file = e.target.files[0];
             console.log("Selected file:", file);
             setProfilePicture(file);
-            
+
             // Create preview
             const reader = new FileReader();
             reader.onload = (event) => {
@@ -339,7 +339,7 @@ export default function AdminDashboard() {
             const file = e.target.files[0];
             console.log("Selected edit file:", file);
             setEditProfilePicture(file);
-            
+
             // Create preview
             const reader = new FileReader();
             reader.onload = (event) => {
@@ -384,17 +384,17 @@ export default function AdminDashboard() {
                 const { data: { publicUrl } } = supabaseClient.storage
                     .from('avatars')
                     .getPublicUrl(filePath);
-                
+
                 avatarUrl = publicUrl;
             }
 
             const res = await fetch("/api/admin/addUser", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    email, 
-                    password, 
-                    fullName, 
+                body: JSON.stringify({
+                    email,
+                    password,
+                    fullName,
                     userClass,
                     avatarUrl // Pass avatar URL to API
                 }),
@@ -404,7 +404,7 @@ export default function AdminDashboard() {
             const contentType = res.headers.get("content-type")
             if (contentType && contentType.indexOf("application/json") !== -1) {
                 const result = await res.json()
-                
+
                 if (result.error) {
                     setErrorMessage(result.error)
                     setIsAddErrorDialogOpen(true)
@@ -474,9 +474,9 @@ export default function AdminDashboard() {
                         <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
                         <p className="text-gray-600 mt-2">Manage users and their reports</p>
                     </div>
-                    
+
                     <div className="flex items-center gap-4">
-                        <Button 
+                        <Button
                             onClick={() => setIsLogoutDialogOpen(true)}
                             className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                         >
@@ -485,8 +485,6 @@ export default function AdminDashboard() {
                         </Button>
                     </div>
                 </div>
-
-                
 
                 {/* User Management Section */}
                 <Card className="border-0 shadow-lg mb-6">
@@ -510,15 +508,15 @@ export default function AdminDashboard() {
                                     </svg>
                                 </div>
                             </div>
-                            </div>
-                            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                                <DialogTrigger asChild>
-                                    <Button className="bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                                        <Plus className="h-4 w-4 mr-2" />
-                                        Add New User
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[450px] rounded-xl overflow-hidden shadow-2xl bg-white">
+                        </div>
+                        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Button className="bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Add New User
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[450px] rounded-xl overflow-hidden shadow-2xl bg-white">
                                 <div className="bg-gradient-to-r from-emerald-500 to-teal-600 p-6 relative overflow-hidden">
                                     <div className="absolute inset-0 opacity-10">
                                         <div className="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
@@ -538,9 +536,9 @@ export default function AdminDashboard() {
                                         <div className="flex items-center gap-4">
                                             {profilePicturePreview ? (
                                                 <div className="relative">
-                                                    <img 
-                                                        src={profilePicturePreview} 
-                                                        alt="Profile Preview" 
+                                                    <img
+                                                        src={profilePicturePreview}
+                                                        alt="Profile Preview"
                                                         className="w-16 h-16 rounded-full object-cover border-2 border-emerald-500"
                                                     />
                                                     <button
@@ -687,7 +685,7 @@ export default function AdminDashboard() {
                                 <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                                 <h3 className="text-lg font-medium text-gray-900 mb-1">No users found</h3>
                                 <p className="text-gray-500 mb-6">Get started by adding a new user</p>
-                                <Button 
+                                <Button
                                     onClick={() => setIsAddDialogOpen(true)}
                                     className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800"
                                 >
@@ -709,8 +707,8 @@ export default function AdminDashboard() {
                                     </TableHeader>
                                     <TableBody className="divide-y divide-gray-200">
                                         {filteredUsers.map((user, index) => (
-                                            <TableRow 
-                                                key={user.user_email} 
+                                            <TableRow
+                                                key={user.user_email}
                                                 className="hover:bg-blue-50 transition-colors duration-150"
                                             >
                                                 <TableCell className="py-4 px-4 text-sm font-medium text-gray-900">
@@ -723,9 +721,9 @@ export default function AdminDashboard() {
                                                 <TableCell className="py-4 px-4 text-sm font-medium text-gray-900">
                                                     <div className="flex items-center">
                                                         {user.avatar_url ? (
-                                                            <img 
-                                                                src={user.avatar_url} 
-                                                                alt={`${user.full_name}'s profile`} 
+                                                            <img
+                                                                src={user.avatar_url}
+                                                                alt={`${user.full_name}'s profile`}
                                                                 className="flex-shrink-0 h-10 w-10 rounded-full object-cover border-2 border-blue-200"
                                                                 onError={(e) => {
                                                                     // Handle broken image by hiding it and showing fallback
@@ -734,15 +732,15 @@ export default function AdminDashboard() {
                                                                     // Find and show the fallback div
                                                                     const parent = target.parentElement;
                                                                     if (parent) {
-                                                                      const fallback = parent.querySelector('.fallback-avatar');
-                                                                      if (fallback) {
-                                                                        (fallback as HTMLElement).style.display = 'flex';
-                                                                      }
+                                                                        const fallback = parent.querySelector('.fallback-avatar');
+                                                                        if (fallback) {
+                                                                            (fallback as HTMLElement).style.display = 'flex';
+                                                                        }
                                                                     }
                                                                 }}
                                                             />
                                                         ) : null}
-                                                        <div 
+                                                        <div
                                                             className={`fallback-avatar flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center ${user.avatar_url ? 'hidden' : ''}`}
                                                             style={{ display: user.avatar_url ? 'none' : 'flex' }}
                                                         >
@@ -831,15 +829,15 @@ export default function AdminDashboard() {
                                 <div className="flex items-center gap-4">
                                     <div className="flex-shrink-0">
                                         {editProfilePicturePreview ? (
-                                            <img 
-                                                src={editProfilePicturePreview} 
-                                                alt="Profile Preview" 
+                                            <img
+                                                src={editProfilePicturePreview}
+                                                alt="Profile Preview"
                                                 className="w-16 h-16 rounded-full object-cover border-2 border-blue-500"
                                             />
                                         ) : selectedUser.avatar_url ? (
-                                            <img 
-                                                src={selectedUser.avatar_url} 
-                                                alt="Profile" 
+                                            <img
+                                                src={selectedUser.avatar_url}
+                                                alt="Profile"
                                                 className="w-16 h-16 rounded-full object-cover border-2 border-blue-500"
                                             />
                                         ) : (
@@ -859,8 +857,8 @@ export default function AdminDashboard() {
                                                 onChange={handleEditProfilePictureChange}
                                                 className="py-2 rounded-lg border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                             />
-                                            <Label 
-                                                htmlFor="editProfilePicture" 
+                                            <Label
+                                                htmlFor="editProfilePicture"
                                                 className="absolute inset-0 flex items-center justify-center bg-white/90 border border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors"
                                             >
                                                 <span className="text-sm text-slate-600">
@@ -884,9 +882,9 @@ export default function AdminDashboard() {
                                                 </Button>
                                             )}
                                             <p className="text-xs text-slate-500 mt-1">
-                                                {selectedUser.avatar_url && !editProfilePicture ? "Current profile picture" : 
-                                                 editProfilePicture ? "New profile picture selected" : 
-                                                 "No profile picture set"}
+                                                {selectedUser.avatar_url && !editProfilePicture ? "Current profile picture" :
+                                                    editProfilePicture ? "New profile picture selected" :
+                                                        "No profile picture set"}
                                             </p>
                                         </div>
                                     </div>
@@ -976,7 +974,7 @@ export default function AdminDashboard() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel className="bg-white border border-gray-300 hover:bg-gray-50">Cancel</AlertDialogCancel>
-                        <AlertDialogAction 
+                        <AlertDialogAction
                             onClick={handleDeleteUser}
                             className="bg-red-600 hover:bg-red-700"
                             disabled={deletingUser}
@@ -1153,7 +1151,7 @@ export default function AdminDashboard() {
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="flex gap-3 pt-4">
-                        <AlertDialogCancel 
+                        <AlertDialogCancel
                             className="bg-white flex-1 py-5 text-gray-700 hover:bg-gray-50 rounded-xl"
                             onClick={() => setIsLogoutDialogOpen(false)}
                         >
